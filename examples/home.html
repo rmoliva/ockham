@@ -4,15 +4,32 @@
     <title>Ockham</title>
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
     <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.js' type='text/javascript'></script>
-    <script src='../node_modules/bluebird/js/browser/bluebird.js' type='text/javascript'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/bluebird/2.9.30/bluebird.js' type='text/javascript'></script>
     <script src='../dist/ockham.max.js' type='text/javascript'></script>
 
 
 
     <script type="text/javascript">
     //<![CDATA[
-    var obj = Ockham.create({});
-    console.log(obj.test());
+    var fsm = Ockham.create({
+      transitions: [
+        { name: 'init',  from: 'none',   to: 'green' },
+        { name: 'warn',  from: 'green',  to: 'yellow' },
+        { name: 'panic', from: 'yellow', to: 'red'    },
+        { name: 'calm',  from: 'red',    to: 'yellow' },
+        { name: 'clear', from: 'yellow', to: 'green'  },
+        { name: 'clear', from: 'red', to: 'green'  }
+      ]},{
+        init: function(transitionData) {
+          return new Promise(function(resolve, reject) {
+            // Anadimos algo mas al eventData para interceptarlo
+          });
+      }
+    });
+    fsm.init({1: "Uno",2: "Dos"}).then(function(data) {
+      console.log(data);
+      console.log(fsm.current);
+    });
     
     //]]>
     </script>

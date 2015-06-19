@@ -7,7 +7,10 @@ module.exports = function(grunt) {
         specs: 'spec/**/*Spec.js',
         helpers: 'spec/*Helper.js',
         vendor: [
-        ]
+          'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/bluebird/2.9.30/bluebird.js'
+        ],
+        display: "full"
       }
     }
   });
