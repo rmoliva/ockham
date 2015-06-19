@@ -1,2 +1,2 @@
 # ockham
-An oppinionated javascript finite state machine 
+An opinionated javascript finite state machine 
