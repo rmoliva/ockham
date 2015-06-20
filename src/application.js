@@ -22,6 +22,11 @@
 
     OckhamState.prototype.doTransition = function(transition, options) {
         var that = this;
+        
+        // Si este estado no acepta la transicion, pasarselo al padre
+        if(!that.from_transitions[transition]) {
+          return that.parent.doTransition(transition,options);
+        }
 
         // TODO: Comprobar que se pueda hacer la transicion
 
