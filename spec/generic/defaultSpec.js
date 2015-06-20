@@ -43,6 +43,15 @@ describe("Default State Machine", function() {
     expect(this.fsm.current.getCompleteName()).toBe("none");
   });
 
+  describe("Transition to 'warn'", function() {
+    it("should fail", function(done) {
+      this.fsm.doTransition('warn').catch(function(error) {
+        expect(error.name).toBe("OckhamError");
+        expect(error.message).toBe("No transition 'warn' in state: 'none'");
+      }).finally(done);
+    });
+  });
+
   describe("Transition 'init' from 'none' to 'green'", function() {
     beforeEach(function(done) {
       this.fsm.doTransition('init').then(function() {
@@ -53,6 +62,16 @@ describe("Default State Machine", function() {
     it("state should be green", function() {
       expect(this.fsm.current.getCompleteName()).toBe("green");
     });
+    
+    describe("Transition to 'panic'", function() {
+      it("should fail", function(done) {
+        this.fsm.doTransition('panic').catch(function(error) {
+          expect(error.name).toBe("OckhamError");
+          expect(error.message).toBe("No transition 'panic' in state: 'green'");
+        }).finally(done);
+      });
+    });
+    
     
     describe("Transition 'blink' from 'green' to 'green-blink'", function() {
       beforeEach(function(done) {
