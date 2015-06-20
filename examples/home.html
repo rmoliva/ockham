@@ -12,22 +12,52 @@
     <script type="text/javascript">
     //<![CDATA[
     var fsm = Ockham.create({
-      transitions: [
-        { name: 'init',  from: 'none',   to: 'green' },
-        { name: 'warn',  from: 'green',  to: 'yellow' },
-        { name: 'panic', from: 'yellow', to: 'red'    },
-        { name: 'calm',  from: 'red',    to: 'yellow' },
-        { name: 'clear', from: 'yellow', to: 'green'  },
-        { name: 'clear', from: 'red', to: 'green'  }
-      ]},{
-        init: function(transitionData) {
-          return new Promise(function(resolve, reject) {
-            // Anadimos algo mas al eventData para interceptarlo
-          });
+      states: {
+        none: {
+          init: 'green'
+        },
+        green: {
+          warn: 'yellow',
+          blink: 'green-blink',
+          states: {
+            blink: {
+              cancel: 'green'
+            }
+          }
+        },
+        yellow: {
+          panic: 'red',
+          clear: 'green',
+          blink: 'yellow-blink',
+          states: {
+            blink: {
+              cancel: 'yellow'
+            }
+          }
+        },
+        red: {
+          calm: 'yellow',
+          clear: 'green',
+          blink: 'blink',
+          states: {
+            blink: {
+              clear_blink: 'green-blink'
+            }
+          }
+        } 
       }
     });
-    fsm.init({1: "Uno",2: "Dos"}).then(function(data) {
-      console.log(data);
+    fsm.doTransition('init', {1: "Uno",2: "Dos"}).then(function(data) {
+      // green 
+      return fsm.doTransition('blink');
+    }).then(function() {
+      // green-blink
+      return fsm.doTransition('cancel');
+    }).then(function() {
+      // green
+      return fsm.doTransition('warn');
+    }).then(function() {
+      // yellow
       console.log(fsm.current);
     });
     

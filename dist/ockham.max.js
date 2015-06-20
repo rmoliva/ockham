@@ -1,49 +1,101 @@
-/*! ockham.js - v0.0.1+build.1434730084809 - 2015-06-19 */(function() {
+/*! ockham.js - v0.0.1+build.1434809699303 - 2015-06-20 */(function() {
+    var OckhamState = function(name, parent) {
+        this.name = name;
+        this.parent = parent;
+        this.from_transitions = {};
+    };
+
+    OckhamState.prototype.getCompleteName = function() {
+        var parent = this.parent,
+            names = [];
+        if (this.parent) {
+            names.push(this.parent.getCompleteName());
+        }
+        names.push(this.name);
+        return names.join('-');
+    };
+
+    OckhamState.prototype.addTransition = function(from, to) {
+        // Solo puede haber un estado final para cada transicion
+        this.from_transitions[from] = to;
+    };
+
+    OckhamState.prototype.doTransition = function(transition, options) {
+        var that = this;
+
+        // TODO: Comprobar que se pueda hacer la transicion
+
+        return new Promise(function(resolve, reject) {
+            resolve(that.from_transitions[transition]);
+        });
+    };
 
     var Ockham = {
 
         create: function(cfg, target) {
             var fsm = {
-                current: "none"
+                current: null,
+                states: {}
             };
             target = target || {};
 
-            // Travel each transition configuration
-            _.each(cfg.transitions, function(data) {
-                // For each transition create a promise handler
-                fsm[data.name] = _.bind(this.promiseTransition(fsm, data), fsm);
+            // Travel each state configuration
+            _.each(cfg.states, function(data, state) {
+                // Crear los estados raiz
+                this._createState(fsm, state, data, null);
             }, this);
 
             fsm.test = function() {
                 return true;
             };
 
+            // Siempre se empieza por el estado 'none'
+            // TODO: Hacerlo configurable ??
+            fsm.current = fsm.states['none'];
+            fsm.doTransition = this.doTransition;
+
             return _.merge(fsm, target);
         },
-        promiseTransition: function(fsm, transition_data) {
-            var from, eventData;
-            return function(options) {
-                return new Promise(function(resolve, reject) {
-                    from = fsm.current;
-                    // TODO: Comprobar si se puede transicionar
+        _createState: function(fsm, name, data, parent) {
+            var state_obj;
+            // Crear el estado y guardarlo
+            state_obj = new OckhamState(name, parent);
+            fsm.states[state_obj.getCompleteName()] = state_obj;
 
-                    // TODO: Ejecutar el evento de transicion
+            // Crear las transiciones
+            _.each(data, function(data, key) {
+                if (key === 'states') {
+                    _.each(data, function(state_data, substate) {
+                        this._createState(fsm, substate, state_data, state_obj);
+                    }, this);
+                } else {
+                    state_obj.addTransition(key, data);
+                }
+            }, this);
+        },
+        doTransition: function(transition, options) {
+            var from, eventData, that = this;
 
-                    // Cambiar el estado del fsm
-                    fsm.current = transition_data.to;
+            // TODO: Debe de haber un estado seleccionado, siempre devolver un promise
 
-                    eventData = {
-                        from: from,
-                        to: fsm.current,
-                        transition: transition_data.name,
-                        options: options
-                    };
-                    resolve(eventData);
-                    return true;
-                });
-            };
+            // Delegar en el estado actual la transicion
+            return that.current.doTransition(transition, options).then(function(to) {
+                from = that.current.getCompleteName();
+
+                // Cambiar al estado destino
+                that.current = that.states[to];
+
+                // TODO: Comprobar que exista estado destino
+
+                eventData = {
+                    from: from,
+                    to: that.current.getCompleteName(),
+                    transition: transition,
+                    options: options
+                };
+                return eventData;
+            });
         }
-
 
     };
 

@@ -4,8 +4,8 @@ module.exports = function(grunt) {
     all: [
       'Gruntfile.js', 
       'src/**/*.js',
-      '!src/templates/**/*.js'
-      
+      '!src/templates/**/*.js',
+      'spec/**/*.js'
     ],
     options: {
       curly: true,
@@ -31,7 +31,11 @@ module.exports = function(grunt) {
         "navigator": true,
         "Ockham": true,
         "define": true,
-        "self": true
+        "self": true,
+        "describe": true,
+        "it": true,
+        "expect": true,
+        "beforeEach": true
       }
     },
     with_debug: {
