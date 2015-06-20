@@ -1,4 +1,16 @@
 /*! ockham.js - v0.0.1+build.1434809699303 - 2015-06-20 */(function() {
+    var OckhamError = function(message) {
+        return {
+            name: "OckhamError",
+            level: "Show Stopper",
+            message: message,
+            htmlMessage: message,
+            toString: function() {
+                return this.name + ": " + this.message;
+            }
+        };
+    };
+
     var OckhamState = function(name, parent) {
         this.name = name;
         this.parent = parent;
@@ -21,13 +33,25 @@
     };
 
     OckhamState.prototype.doTransition = function(transition, options) {
-        var that = this;
+        var that = this,
+            promise;
 
-        // TODO: Comprobar que se pueda hacer la transicion
+        // Si este estado no acepta la transicion, pasarselo al padre
+        if (that.from_transitions[transition]) {
+            promise = new Promise(function(resolve, reject) {
+                resolve(that.from_transitions[transition]);
+            });
+        } else {
+            if (that.parent) {
+                promise = that.parent.doTransition(transition, options);
+            }
+        }
 
-        return new Promise(function(resolve, reject) {
-            resolve(that.from_transitions[transition]);
-        });
+        // Comprobar que se pueda hacer la transicion
+        if (promise) {
+            return promise;
+        }
+        return Promise.reject(new OckhamError("No transition '" + transition + "' in state: '" + that.getCompleteName() + "'"));
     };
 
     var Ockham = {
@@ -85,8 +109,6 @@
                 // Cambiar al estado destino
                 that.current = that.states[to];
 
-                // TODO: Comprobar que exista estado destino
-
                 eventData = {
                     from: from,
                     to: that.current.getCompleteName(),
@@ -96,9 +118,7 @@
                 return eventData;
             });
         }
-
     };
-
 
     // Ockham
 
