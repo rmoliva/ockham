@@ -1,3 +1,5 @@
 language: javascript
+before-script
+- npm install
 script:
 - grunt jasmine
