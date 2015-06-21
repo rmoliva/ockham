@@ -1,5 +1,5 @@
 language: node_js
-before-script
+before-script:
 - npm install
 script:
 - grunt jasmine
