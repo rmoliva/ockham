@@ -38,9 +38,13 @@
 
         // Si este estado no acepta la transicion, pasarselo al padre
         if (that.from_transitions[transition]) {
+          if(_.isFunction(that.from_transitions[transition].then)) {
+            promise = that.from_transitions[transition];
+          } else {
             promise = new Promise(function(resolve, reject) {
                 resolve(that.from_transitions[transition]);
             });
+          }
         } else {
             if (that.parent) {
                 promise = that.parent.doTransition(transition, options);
