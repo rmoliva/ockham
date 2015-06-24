@@ -67,7 +67,7 @@ describe("Extended State Machine", function() {
   });
   
   it("initial state should be none", function() {
-    expect(this.fsm.current.getCompleteName()).toBe("none");
+    expect(this.fsm.is("none")).toBe(true);
   });
 
   describe("Transition 'init' from 'none' to 'off'", function() {

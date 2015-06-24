@@ -18,7 +18,8 @@ describe("Defer State Machine", function() {
               init: 'off'
             },
             off: {
-              blink: this.blink
+              blink: this.blink,
+              round: this.round
             },
             blink: {
               turn_on: 'on',
@@ -32,6 +33,13 @@ describe("Defer State Machine", function() {
       blink : function(fsm, options) {
         return new Promise(function(resolve, reject) {
           fsm.deferTransition("turn_on", options);
+          resolve('blink', options);
+        });
+      },
+      round: function(fsm, options) {
+        return new Promise(function(resolve, reject) {
+          fsm.deferTransition("turn_on", options);
+          fsm.deferTransition("turn_off", options);
           resolve('blink', options);
         });
       }
@@ -53,7 +61,7 @@ describe("Defer State Machine", function() {
 
     describe("Transition to 'blink'", function() {
       beforeEach(function(done) {
-        var options = {one: "One", two: "two"}
+        var options = {one: "One", two: "two"};
         this.fsm.doTransition('blink', options).then(checkReturn({
           from: 'blink',
           to: 'on',
@@ -63,7 +71,23 @@ describe("Defer State Machine", function() {
       });
       
       it("state should be on", function() {
-        expect(this.fsm.is("on")).toBe(true);
+        expect(this.fsm.currentName()).toBe("on");
+      });
+    });
+
+    describe("Transition 'round'", function() {
+      beforeEach(function(done) {
+        var options = {one: "One", two: "two"};
+        this.fsm.doTransition('round', options).then(checkReturn({
+          from: 'on',
+          to: 'off',
+          transition: 'turn_off',
+          options: options
+        })).finally(done);
+      });
+      
+      it("state should be off", function() {
+        expect(this.fsm.currentName()).toBe("off");
       });
     });
   });

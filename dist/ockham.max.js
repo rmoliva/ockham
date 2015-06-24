@@ -27,25 +27,36 @@
         return names.join('-');
     };
 
-    OckhamState.prototype.addTransition = function(from, to) {
+    OckhamState.prototype.addTransition = function(from, transition) {
         // Solo puede haber un estado final para cada transicion
-        this.from_transitions[from] = to;
+        this.from_transitions[from] = transition;
+    };
+
+    OckhamState.prototype.can = function(transition) {
+        if (!_.isUndefined(this.from_transitions[transition])) {
+            return true;
+        }
+        // Si no esta definido en el propio estado buscarlo en los padres
+        if (this.parent) {
+            return this.parent.can(transition);
+        }
+        return false;
     };
 
     OckhamState.prototype.doTransition = function(fsm, transition, options) {
         var that = this,
-            promise, 
+            promise,
             transition_fn = that.from_transitions[transition];
 
         // Si este estado no acepta la transicion, pasarselo al padre
         if (that.from_transitions[transition]) {
-          if(_.isFunction(transition_fn)) {
-            promise = transition_fn(fsm, options);
-          } else {
-            promise = new Promise(function(resolve, reject) {
-                resolve(that.from_transitions[transition],options);
-            });
-          }
+            if (_.isFunction(transition_fn)) {
+                promise = transition_fn(fsm, options);
+            } else {
+                promise = new Promise(function(resolve, reject) {
+                    resolve(that.from_transitions[transition], options);
+                });
+            }
         } else {
             if (that.parent) {
                 promise = that.parent.doTransition(fsm, transition, options);
@@ -60,95 +71,121 @@
     };
 
     var Ockham = {
+        fsm: function(cfg) {
+          var current = null;
+          var states = {};
+          var transition_queue = [];
+          
+            var _createState = function(name, data, parent) {
+                var state_obj;
+                // Crear el estado y guardarlo
+                state_obj = new OckhamState(name, parent);
+                states[state_obj.getCompleteName()] = state_obj;
 
-        create: function(cfg, target) {
-            var fsm = {
-                current: null,
-                states: {},
-                transition_queue: [],
-                transitions: cfg.transitions
+                // Crear las transiciones
+                _.each(data, function(data, key) {
+                    if (key === 'states') {
+                        _.each(data, function(state_data, substate) {
+                            _createState(substate, state_data, state_obj);
+                        }, this);
+                    } else {
+                        state_obj.addTransition(key, data);
+                    }
+                }, this);
             };
-            target = target || {};
+
+            var can = function(transition) {
+                if (current) {
+                    return current.can(transition);
+                }
+                return false;
+            };
+            var cannot = function(transition) {
+                return !can(transition);
+            };
             
-            fsm = _.extend(fsm, cfg.config(fsm));
+            var currentName = function() {
+              return current.getCompleteName();
+            };
             
+            var is = function(state) {
+                if (current) {
+                    return current.getCompleteName() === state;
+                }
+                return false;
+            };
+            var doTransition = function(transition, options) {
+                var from, eventData, that = this;
+
+                // Debe de haber un estado seleccionado, siempre devolver un promise
+
+                // Delegar en el estado actual la transicion
+                return current.doTransition(that, transition, options).then(function(to) {
+                    from = current.getCompleteName();
+
+                    // Cambiar al estado destino
+                    current = states[to];
+
+                    eventData = {
+                        from: from,
+                        to: current.getCompleteName(),
+                        transition: transition,
+                        options: options
+                    };
+                    return eventData;
+                }).then(function(eventData) {
+                    return processTransitionQueue(eventData);
+                });
+            };
+            var deferTransition = function(transition, options) {
+                transition_queue.push({
+                    transition: transition,
+                    options: options
+                });
+            };
+            var processTransitionQueue = function(eventData) {
+                var promise_queue, data, promise;
+
+                if (_.isEmpty(transition_queue)) {
+                    return Promise.resolve(eventData);
+                }
+                
+                // Devolver el primer elemento de la cola de transicion
+                data = _.first(transition_queue);
+                promise = doTransition(data.transition, data.options);
+                
+                // Quitar el elemento del array
+                transition_queue.splice(0,1);
+                return promise;
+            };
+            
+            var ret = _.extend({
+                can: can,
+                cannot: cannot,
+                is: is,
+                doTransition: doTransition,
+                deferTransition: deferTransition,
+                processTransitionQueue: processTransitionQueue,
+                currentName: currentName
+            }, cfg.config(this));
+
             // Travel each state configuration
-            _.each(fsm.states, function(data, state) {
+            _.each(ret.states, function(data, state) {
                 // Crear los estados raiz
-                this._createState(fsm, state, data, null);
-            }, this);
-            
-            fsm.test = function() {
-                return true;
-            };
+                _createState(state, data, null);
+            }, ret);
 
             // Siempre se empieza por el estado 'none'
             // TODO: Hacerlo configurable ??
-            fsm.current = fsm.states['none'];
-            fsm.doTransition = this.doTransition;
-            fsm.processTransitionQueue = this.processTransitionQueue;
-            fsm.deferTransition = this.deferTransition;
+            current = states.none;
+
+            return ret;
+        },
+
+        create: function(cfg) {
+            var fsm = this.fsm(cfg);
+
             return fsm;
-        },
-        _createState: function(fsm, name, data, parent) {
-            var state_obj;
-            // Crear el estado y guardarlo
-            state_obj = new OckhamState(name, parent);
-            fsm.states[state_obj.getCompleteName()] = state_obj;
-
-            // Crear las transiciones
-            _.each(data, function(data, key) {
-                if (key === 'states') {
-                    _.each(data, function(state_data, substate) {
-                        this._createState(fsm, substate, state_data, state_obj);
-                    }, this);
-                } else {
-                    state_obj.addTransition(key, data);
-                }
-            }, this);
-        },
-        doTransition: function(transition, options) {
-            var from, eventData, that = this;
-
-            // Debe de haber un estado seleccionado, siempre devolver un promise
-
-            // Delegar en el estado actual la transicion
-            return that.current.doTransition(that, transition, options).then(function(to) {
-                from = that.current.getCompleteName();
-
-                // Cambiar al estado destino
-                that.current = that.states[to];
-
-                eventData = {
-                    from: from,
-                    to: that.current.getCompleteName(),
-                    transition: transition,
-                    options: options
-                };
-                return eventData;
-            }).then(function(eventData) {
-              return that.processTransitionQueue(eventData); 
-            });
-        },
-        deferTransition: function(transition, options) {
-          this.transition_queue.push({transition: transition, options: options});
-        },
-        processTransitionQueue: function(eventData) {
-          var promise_queue;
-          
-          if(_.isEmpty(this.transition_queue)) {
-            return Promise.resolve(eventData);
-          }
-          
-          promise_queue = _.map(this.transition_queue, function(data) {
-            return this.doTransition(data.transition, data.options);
-          }, this);
-          
-          // Vaciar la cola de transiciones diferidas
-          this.transition_queue = [];
-          return Promise.all(promise_queue).then(function(result_list) {
-            return _.last(result_list);
-          });
         }
     };
 

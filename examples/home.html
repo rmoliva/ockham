@@ -17,44 +17,39 @@
         return {
           states: {
             none: {
-              init: 'green'
+              init: 'off'
             },
-            green: {
-              warn: 'yellow',
-              blink: 'green-blink',
-              states: {
-                blink: {
-                  cancel: 'green'
-                }
-              }
+            off: {
+              blink: this.blink,
+              round: this.round
             },
-            yellow: {
-              panic: 'red',
-              clear: 'green',
-              blink: 'yellow-blink',
-              states: {
-                blink: {
-                  cancel: 'yellow'
-                }
-              }
+            blink: {
+              turn_on: 'on',
             },
-            red: {
-              calm: 'yellow',
-              clear: 'green',
-              blink: 'red-blink',
-              states: {
-                blink: {
-                  clear_blink: 'green-blink'
-                }
-              }
-            } 
+            on: {
+              turn_off: 'off',
+            }
           }
         };
+      },
+      blink : function(fsm, options) {
+        return new Promise(function(resolve, reject) {
+          fsm.deferTransition("turn_on", options);
+          resolve('blink', options);
+        });
+      },
+      round: function(fsm, options) {
+        return new Promise(function(resolve, reject) {
+          fsm.deferTransition("turn_on", options);
+          fsm.deferTransition("turn_off", options);
+          resolve('blink', options);
+        });
       }
     });
-;
 
-    fsm.doTransition('init', {1: "Uno",2: "Dos"}).then(function(data) {
+    fsm.doTransition('init').then(function(data) {
+      return fsm.doTransition('round', {1: "Uno",2: "Dos"});
+    }).then(function(data) {
       console.log(data);
     });
     

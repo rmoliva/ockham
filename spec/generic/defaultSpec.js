@@ -57,7 +57,7 @@ describe("Default State Machine", function() {
   });
 
   it("should return eventData correctly", function(done) {
-    var options = {one: "One", two: "two"}
+    var options = {one: "One", two: "two"};
     this.fsm.doTransition('init', options).then(checkReturn({
       from: 'none',
       to: 'green',
