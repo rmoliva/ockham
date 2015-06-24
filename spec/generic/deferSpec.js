@@ -39,7 +39,7 @@ describe("Defer State Machine", function() {
   });
   
   it("initial state should be none", function() {
-    expect(this.fsm.current.getCompleteName()).toBe("none");
+    expect(this.fsm.is("none")).toBe(true);
   });
 
   describe("Transition to 'init'", function() {
@@ -48,7 +48,7 @@ describe("Defer State Machine", function() {
     });
 
     it("state should be off", function() {
-      expect(this.fsm.current.getCompleteName()).toBe("off");
+      expect(this.fsm.is("off")).toBe(true);
     });
 
     describe("Transition to 'blink'", function() {
@@ -63,7 +63,7 @@ describe("Defer State Machine", function() {
       });
       
       it("state should be on", function() {
-        expect(this.fsm.current.getCompleteName()).toBe("on");
+        expect(this.fsm.is("on")).toBe(true);
       });
     });
   });

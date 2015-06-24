@@ -27,9 +27,20 @@
         return names.join('-');
     };
 
-    OckhamState.prototype.addTransition = function(from, to) {
+    OckhamState.prototype.addTransition = function(from, transition) {
         // Solo puede haber un estado final para cada transicion
-        this.from_transitions[from] = to;
+        this.from_transitions[from] = transition;
+    };
+
+    OckhamState.prototype.can = function(transition) {
+      if(!_.isUndefined(this.from_transitions[transition])) {
+        return true;
+      }
+      // Si no esta definido en el propio estado buscarlo en los padres
+      if (this.parent) {
+        return this.parent.can(transition);
+      }
+      return false;
     };
 
     OckhamState.prototype.doTransition = function(fsm, transition, options) {
@@ -88,6 +99,22 @@
             fsm.doTransition = this.doTransition;
             fsm.processTransitionQueue = this.processTransitionQueue;
             fsm.deferTransition = this.deferTransition;
+            fsm.can = function(transition) {
+              if(this.current) {
+                return this.current.can(transition);
+              }
+              return false;
+            };
+            fsm.cannot = function(transition) {
+              return !this.can(transition);
+            };
+            fsm.is = function(state) {
+              if(this.current) {
+                return this.current.getCompleteName() === state;
+              }
+              return false;
+            };
+            
             return fsm;
         },
         _createState: function(fsm, name, data, parent) {

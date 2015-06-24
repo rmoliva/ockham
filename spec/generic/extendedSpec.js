@@ -76,7 +76,7 @@ describe("Extended State Machine", function() {
     });
     
     it("state should be off", function() {
-      expect(this.fsm.current.getCompleteName()).toBe("off");
+      expect(this.fsm.is("off")).toBe(true);
     });
 
     describe("Transition 'blink' from 'off' to 'off_blink'", function() {
@@ -85,7 +85,7 @@ describe("Extended State Machine", function() {
       });
       
       it("state should be off-blink", function() {
-        expect(this.fsm.current.getCompleteName()).toBe("off-blink");
+        expect(this.fsm.is("off-blink")).toBe(true);
       });
       
       describe("Transition 'cancel' from 'off-blink' to 'off'", function() {
@@ -94,7 +94,7 @@ describe("Extended State Machine", function() {
         });
         
         it("state should be off", function() {
-          expect(this.fsm.current.getCompleteName()).toBe("off");
+          expect(this.fsm.is("off")).toBe(true);
         });
       });
 
@@ -104,7 +104,7 @@ describe("Extended State Machine", function() {
         });
         
         it("state should be on", function() {
-          expect(this.fsm.current.getCompleteName()).toBe("on");
+          expect(this.fsm.is("on")).toBe(true);
         });
       });
     });      
@@ -115,7 +115,7 @@ describe("Extended State Machine", function() {
       });
       
       it("state should be on", function() {
-        expect(this.fsm.current.getCompleteName()).toBe("on");
+        expect(this.fsm.is("on")).toBe(true);
       });
   
       describe("Transition 'stop' from 'on' to 'off'", function() {
@@ -124,7 +124,7 @@ describe("Extended State Machine", function() {
         });
         
         it("state should be off", function() {
-          expect(this.fsm.current.getCompleteName()).toBe("off");
+          expect(this.fsm.is("off")).toBe(true);
         });
       });
       
@@ -134,7 +134,7 @@ describe("Extended State Machine", function() {
         });
         
         it("state should be on", function() {
-          expect(this.fsm.current.getCompleteName()).toBe("on-blink");
+          expect(this.fsm.is("on-blink")).toBe(true);
         });
         
         describe("Transition 'cancel' from 'on-blink' to 'on'", function() {
@@ -143,7 +143,7 @@ describe("Extended State Machine", function() {
           });
           
           it("state should be off", function() {
-            expect(this.fsm.current.getCompleteName()).toBe("on");
+            expect(this.fsm.is("on")).toBe(true);
           });
         });
   
@@ -153,10 +153,10 @@ describe("Extended State Machine", function() {
           });
           
           it("state should be on", function() {
-            expect(this.fsm.current.getCompleteName()).toBe("off");
+            expect(this.fsm.is("off")).toBe(true);
           });
         });
-      });      
+      });
     });
   });
 });

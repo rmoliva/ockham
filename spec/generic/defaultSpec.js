@@ -53,7 +53,7 @@ describe("Default State Machine", function() {
   });
   
   it("initial state should be none", function() {
-    expect(this.fsm.current.getCompleteName()).toBe("none");
+    expect(this.fsm.is("none")).toBe(true);
   });
 
   it("should return eventData correctly", function(done) {
@@ -81,13 +81,25 @@ describe("Default State Machine", function() {
     });
 
     it("state should be green", function() {
-      expect(this.fsm.current.getCompleteName()).toBe("green");
+      expect(this.fsm.is("green")).toBe(true);
     });
     
     it("return eventDataCorrectly", function() {
-      expect(this.fsm.current.getCompleteName()).toBe("green");
+      expect(this.fsm.is("green")).toBe(true);
     });
     
+    it("can transition to 'warn", function() {
+      expect(this.fsm.can("warn")).toBe(true);
+    });
+
+    it("can transition to 'blink", function() {
+      expect(this.fsm.can("blink")).toBe(true);
+    });
+    
+    it("cannot transition to 'panic", function() {
+      expect(this.fsm.cannot("panic")).toBe(true);
+    });
+
     describe("Transition to 'panic'", function() {
       it("should fail", function(done) {
         this.fsm.doTransition('panic').catch(function(error) {
@@ -104,7 +116,23 @@ describe("Default State Machine", function() {
       });
       
       it("state should be green-blink", function() {
-        expect(this.fsm.current.getCompleteName()).toBe("green-blink");
+        expect(this.fsm.is("green-blink")).toBe(true);
+      });
+      
+      it("can transition to 'warn", function() {
+        expect(this.fsm.can("warn")).toBe(true);
+      });
+
+      it("can transition to 'blink", function() {
+        expect(this.fsm.can("blink")).toBe(true);
+      });
+      
+      it("can transition to 'cancel", function() {
+        expect(this.fsm.can("cancel")).toBe(true);
+      });
+
+      it("cannot transition to 'panic", function() {
+        expect(this.fsm.cannot("panic")).toBe(true);
       });
       
       describe("Transition 'cancel' from 'green-blink' to 'green'", function() {
@@ -113,7 +141,7 @@ describe("Default State Machine", function() {
         });
         
         it("state should be green", function() {
-          expect(this.fsm.current.getCompleteName()).toBe("green");
+          expect(this.fsm.is("green")).toBe(true);
         });
       });
 
@@ -123,7 +151,7 @@ describe("Default State Machine", function() {
         });
         
         it("state should be yellow", function() {
-          expect(this.fsm.current.getCompleteName()).toBe("yellow");
+          expect(this.fsm.is("yellow")).toBe(true);
         });
       });
     });
@@ -134,7 +162,7 @@ describe("Default State Machine", function() {
       });
       
       it("state should be yellow", function() {
-        expect(this.fsm.current.getCompleteName()).toBe("yellow");
+        expect(this.fsm.is("yellow")).toBe(true);
       });
       
       describe("Transition 'panic' from 'yellow' to 'red'", function() {
@@ -143,7 +171,7 @@ describe("Default State Machine", function() {
         });
         
         it("state should be red", function() {
-          expect(this.fsm.current.getCompleteName()).toBe("red");
+          expect(this.fsm.is("red")).toBe(true);
         });
         
         describe("Transition 'calm' from 'red' to 'yellow'", function() {
@@ -152,7 +180,7 @@ describe("Default State Machine", function() {
           });
           
           it("state should be yellow", function() {
-            expect(this.fsm.current.getCompleteName()).toBe("yellow");
+            expect(this.fsm.is("yellow")).toBe(true);
           });
         });
         
@@ -162,7 +190,7 @@ describe("Default State Machine", function() {
           });
           
           it("state should be green", function() {
-            expect(this.fsm.current.getCompleteName()).toBe("green");
+            expect(this.fsm.is("green")).toBe(true);
           });
         });
         
@@ -172,7 +200,7 @@ describe("Default State Machine", function() {
           });
           
           it("state should be red-blink", function() {
-            expect(this.fsm.current.getCompleteName()).toBe("red-blink");
+            expect(this.fsm.is("red-blink")).toBe(true);
           });
           
           describe("Transition 'clear_blink' from 'red-blink' to 'green-blink'", function() {
@@ -181,7 +209,7 @@ describe("Default State Machine", function() {
             });
             
             it("state should be green-blink", function() {
-              expect(this.fsm.current.getCompleteName()).toBe("green-blink");
+              expect(this.fsm.is("green-blink")).toBe(true);
             });
           });
           
@@ -191,7 +219,7 @@ describe("Default State Machine", function() {
             });
             
             it("state should be yellow", function() {
-              expect(this.fsm.current.getCompleteName()).toBe("yellow");
+              expect(this.fsm.is("yellow")).toBe(true);
             });
           });
           
@@ -201,7 +229,7 @@ describe("Default State Machine", function() {
             });
             
             it("state should be green", function() {
-              expect(this.fsm.current.getCompleteName()).toBe("green");
+              expect(this.fsm.is("green")).toBe(true);
             });
           });
         });
@@ -213,7 +241,7 @@ describe("Default State Machine", function() {
         });
         
         it("state should be green", function() {
-          expect(this.fsm.current.getCompleteName()).toBe("green");
+          expect(this.fsm.is("green")).toBe(true);
         });
       });
 
@@ -223,7 +251,7 @@ describe("Default State Machine", function() {
         });
         
         it("state should be yellow-blink", function() {
-          expect(this.fsm.current.getCompleteName()).toBe("yellow-blink");
+          expect(this.fsm.is("yellow-blink")).toBe(true);
         });
         
         describe("Transition 'panic' from 'yellow-blink' to 'red'", function() {
@@ -232,7 +260,7 @@ describe("Default State Machine", function() {
           });
           
           it("state should be red", function() {
-            expect(this.fsm.current.getCompleteName()).toBe("red");
+            expect(this.fsm.is("red")).toBe(true);
           });
         });
 
@@ -242,7 +270,7 @@ describe("Default State Machine", function() {
           });
           
           it("state should be green", function() {
-            expect(this.fsm.current.getCompleteName()).toBe("green");
+            expect(this.fsm.is("green")).toBe(true);
           });
         });
 
@@ -252,17 +280,10 @@ describe("Default State Machine", function() {
           });
           
           it("state should be yellow", function() {
-            expect(this.fsm.current.getCompleteName()).toBe("yellow");
+            expect(this.fsm.is("yellow")).toBe(true);
           });
-          
         });
       });
     });
-    
-    
-    
   });
-  
-  
-  
 });
