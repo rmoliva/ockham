@@ -10,30 +10,33 @@
 
 
     <script type="text/javascript">
-    //<![CDATA[    
-    var fsm = Ockham.create({        
-      states: {
-        none: {
-          init: 'off'
-        },
-        off: {
-          start: 'start'
-        },
-        on: {
-          stop: 'stop'
-        }
+    //<![CDATA[
+     
+    var fsm = Ockham.create({
+      config: function(fsm) {
+        return {
+          states: {
+            none: {
+              init: 'off'
+            },
+            off: {
+              start: this.start
+            },
+            on: {
+              stop: 'stop'
+            }
+          }
+        };
       },
-      transitions: {
-        'start': function(fsm, options) {
-          return new Promise(function(resolve, reject) {
-            resolve('on');
-          });
-        },
-        'stop': function(fsm, options) {
-          return new Promise(function(resolve, reject) {
-            resolve('off');
-          });
-        }
+      start: function(fsm, options) {
+        return new Promise(function(resolve, reject) {
+          resolve('on');
+        });
+      },
+      stop: function(fsm, options) {
+        return new Promise(function(resolve, reject) {
+          resolve('off');
+        });
       }
     });
 

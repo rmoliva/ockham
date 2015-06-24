@@ -2,27 +2,30 @@ describe("Defer State Machine", function() {
   
   beforeEach(function() {
     this.fsm = Ockham.create({
-      states: {
-        none: {
-          init: 'off'
-        },
-        off: {
-          blink: "blink"
-        },
-        blink: {
-          turn_on: 'on',
-        },
-        on: {
-          turn_off: 'off',
-        }
-      }
-    }, {
+      config: function(fsm) {
+        return {
+          states: {
+            none: {
+              init: 'off'
+            },
+            off: {
+              blink: this.blink
+            },
+            blink: {
+              turn_on: 'on',
+            },
+            on: {
+              turn_off: 'off',
+            }
+          }
+        };
+      },
       blink : function(fsm, options) {
         return new Promise(function(resolve, reject) {
           // fsm.deferTransition("on");
           resolve('blink', options);
         });
-      } 
+      }
     });
   });
   

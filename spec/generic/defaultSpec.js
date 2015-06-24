@@ -2,39 +2,43 @@ describe("Default State Machine", function() {
   
   beforeEach(function() {
     this.fsm = Ockham.create({
-      states: {
-        none: {
-          init: 'green'
-        },
-        green: {
-          warn: 'yellow',
-          blink: 'green-blink',
+      config: function(fsm) {
+        return {
           states: {
-            blink: {
-              cancel: 'green'
-            }
+            none: {
+              init: 'green'
+            },
+            green: {
+              warn: 'yellow',
+              blink: 'green-blink',
+              states: {
+                blink: {
+                  cancel: 'green'
+                }
+              }
+            },
+            yellow: {
+              panic: 'red',
+              clear: 'green',
+              blink: 'yellow-blink',
+              states: {
+                blink: {
+                  cancel: 'yellow'
+                }
+              }
+            },
+            red: {
+              calm: 'yellow',
+              clear: 'green',
+              blink: 'red-blink',
+              states: {
+                blink: {
+                  clear_blink: 'green-blink'
+                }
+              }
+            } 
           }
-        },
-        yellow: {
-          panic: 'red',
-          clear: 'green',
-          blink: 'yellow-blink',
-          states: {
-            blink: {
-              cancel: 'yellow'
-            }
-          }
-        },
-        red: {
-          calm: 'yellow',
-          clear: 'green',
-          blink: 'red-blink',
-          states: {
-            blink: {
-              clear_blink: 'green-blink'
-            }
-          }
-        } 
+        };
       }
     });
   });

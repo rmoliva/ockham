@@ -1,66 +1,68 @@
 describe("Extended State Machine", function() {
   beforeEach(function() {
     this.fsm = Ockham.create({
-      states: {
-        none: {
-          init: 'initTransition'
-        },
-        off: {
-          start: "startTransition",
-          blink: "offBlinkTransition",
+      config: function(fsm) {
+        return {
           states: {
-            blink: {
-              cancel: "cancelOffBlinkTransition"
+            none: {
+              init: this.initTransition
+            },
+            off: {
+              start: this.startTransition,
+              blink: this.offBlinkTransition,
+              states: {
+                blink: {
+                  cancel: this.cancelOffBlinkTransition
+                }
+              }
+            },
+            on: {
+              stop: this.stopTransition,
+              blink: this.onBlinkTransition,
+              states: {
+                blink: {
+                  cancel: this.cancelOnBlinkTransition
+                }
+              }
             }
           }
-        },
-        on: {
-          stop: "stopTransition",
-          blink: "onBlinkTransition",
-          states: {
-            blink: {
-              cancel: "cancelOnBlinkTransition"
-            }
-          }
-        }
+        };
       },
-      transitions: {
-        initTransition : function(fsm, options) {
-          return new Promise(function(resolve, reject) {
-            resolve('off', options);
-          });
-        }, 
-        startTransition : function(fsm, options) {
-          return new Promise(function(resolve, reject) {
-            resolve('on', options);
-          });
-        },
-        stopTransition : function(fsm, options) {
-          return new Promise(function(resolve, reject) {
-            resolve('off', options);
-          });
-        }, 
-        offBlinkTransition : function(fsm, options) {
-          return new Promise(function(resolve, reject) {
-            resolve('off-blink', options);
-          });
-        },
-        onBlinkTransition : function(fsm, options) {
-          return new Promise(function(resolve, reject) {
-            resolve('on-blink', options);
-          });
-        }, 
-        cancelOffBlinkTransition : function(fsm, options) {
-          return new Promise(function(resolve, reject) {
-            resolve('off', options);
-          });
-        },
-        cancelOnBlinkTransition : function(fsm, options) {
-          return new Promise(function(resolve, reject) {
-            resolve('on', options);
-          });
-        } 
-      }
+      initTransition : function(fsm, options) {
+        return new Promise(function(resolve, reject) {
+          resolve('off', options);
+        });
+      }, 
+      startTransition : function(fsm, options) {
+        return new Promise(function(resolve, reject) {
+          resolve('on', options);
+        });
+      },
+      stopTransition : function(fsm, options) {
+        return new Promise(function(resolve, reject) {
+          resolve('off', options);
+        });
+      }, 
+      offBlinkTransition : function(fsm, options) {
+        return new Promise(function(resolve, reject) {
+          resolve('off-blink', options);
+        });
+      },
+      onBlinkTransition : function(fsm, options) {
+        return new Promise(function(resolve, reject) {
+          resolve('on-blink', options);
+        });
+      }, 
+      cancelOffBlinkTransition : function(fsm, options) {
+        return new Promise(function(resolve, reject) {
+          resolve('off', options);
+        });
+      },
+      cancelOnBlinkTransition : function(fsm, options) {
+        return new Promise(function(resolve, reject) {
+          resolve('on', options);
+        });
+      } 
     });
   });
   

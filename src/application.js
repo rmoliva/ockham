@@ -35,7 +35,7 @@
     OckhamState.prototype.doTransition = function(fsm, transition, options) {
         var that = this,
             promise, 
-            transition_fn = fsm.getTransitionFn(that.from_transitions[transition]);
+            transition_fn = that.from_transitions[transition];
 
         // Si este estado no acepta la transicion, pasarselo al padre
         if (that.from_transitions[transition]) {
@@ -70,10 +70,10 @@
             };
             target = target || {};
             
-            fsm = _.extend(fsm, target);
+            fsm = _.extend(fsm, cfg.config(fsm));
 
             // Travel each state configuration
-            _.each(cfg.states, function(data, state) {
+            _.each(fsm.states, function(data, state) {
                 // Crear los estados raiz
                 this._createState(fsm, state, data, null);
             }, this);
@@ -88,8 +88,6 @@
             fsm.doTransition = this.doTransition;
             fsm.processTransitionQueue = this.processTransitionQueue;
             fsm.deferTransition = this.deferTransition;
-            fsm.getTransitionFn = this.getTransitionFn;
-
             return fsm;
         },
         _createState: function(fsm, name, data, parent) {
@@ -108,12 +106,6 @@
                     state_obj.addTransition(key, data);
                 }
             }, this);
-        },
-        getTransitionFn: function(transition) {
-          if(this.transitions) {
-            return this.transitions[transition]; 
-          }
-          return null;
         },
         doTransition: function(transition, options) {
             var from, eventData, that = this;
