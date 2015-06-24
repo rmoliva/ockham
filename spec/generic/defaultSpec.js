@@ -1,5 +1,14 @@
 describe("Default State Machine", function() {
   
+  var checkReturn = function(expectedEventData) {
+    return function(eventData) {
+      expect(eventData.from).toBe(expectedEventData.from);
+      expect(eventData.to).toBe(expectedEventData.to);
+      expect(eventData.transition).toBe(expectedEventData.transition);
+      expect(eventData.options).toBe(expectedEventData.options);
+    };
+  };
+  
   beforeEach(function() {
     this.fsm = Ockham.create({
       config: function(fsm) {
@@ -47,6 +56,16 @@ describe("Default State Machine", function() {
     expect(this.fsm.current.getCompleteName()).toBe("none");
   });
 
+  it("should return eventData correctly", function(done) {
+    var options = {one: "One", two: "two"}
+    this.fsm.doTransition('init', options).then(checkReturn({
+      from: 'none',
+      to: 'green',
+      transition: 'init',
+      options: options
+    })).finally(done);
+  });
+  
   describe("Transition to 'warn'", function() {
     it("should fail", function(done) {
       this.fsm.doTransition('warn').catch(function(error) {
@@ -62,6 +81,10 @@ describe("Default State Machine", function() {
     });
 
     it("state should be green", function() {
+      expect(this.fsm.current.getCompleteName()).toBe("green");
+    });
+    
+    it("return eventDataCorrectly", function() {
       expect(this.fsm.current.getCompleteName()).toBe("green");
     });
     

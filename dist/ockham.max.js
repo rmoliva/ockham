@@ -71,7 +71,7 @@
             target = target || {};
             
             fsm = _.extend(fsm, cfg.config(fsm));
-
+            
             // Travel each state configuration
             _.each(fsm.states, function(data, state) {
                 // Crear los estados raiz
@@ -134,13 +134,21 @@
           this.transition_queue.push({transition: transition, options: options});
         },
         processTransitionQueue: function(eventData) {
+          var promise_queue;
+          
           if(_.isEmpty(this.transition_queue)) {
             return Promise.resolve(eventData);
           }
           
-          return _.map(this.transition_queue, function(data) {
+          promise_queue = _.map(this.transition_queue, function(data) {
             return this.doTransition(data.transition, data.options);
           }, this);
+          
+          // Vaciar la cola de transiciones diferidas
+          this.transition_queue = [];
+          return Promise.all(promise_queue).then(function(result_list) {
+            return _.last(result_list);
+          });
         }
     };
 

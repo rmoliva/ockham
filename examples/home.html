@@ -17,34 +17,45 @@
         return {
           states: {
             none: {
-              init: 'off'
+              init: 'green'
             },
-            off: {
-              start: this.start
+            green: {
+              warn: 'yellow',
+              blink: 'green-blink',
+              states: {
+                blink: {
+                  cancel: 'green'
+                }
+              }
             },
-            on: {
-              stop: 'stop'
-            }
+            yellow: {
+              panic: 'red',
+              clear: 'green',
+              blink: 'yellow-blink',
+              states: {
+                blink: {
+                  cancel: 'yellow'
+                }
+              }
+            },
+            red: {
+              calm: 'yellow',
+              clear: 'green',
+              blink: 'red-blink',
+              states: {
+                blink: {
+                  clear_blink: 'green-blink'
+                }
+              }
+            } 
           }
         };
-      },
-      start: function(fsm, options) {
-        return new Promise(function(resolve, reject) {
-          resolve('on');
-        });
-      },
-      stop: function(fsm, options) {
-        return new Promise(function(resolve, reject) {
-          resolve('off');
-        });
       }
     });
+;
 
     fsm.doTransition('init', {1: "Uno",2: "Dos"}).then(function(data) {
-      // green 
-      return fsm.doTransition('start');
-    }).then(function() {
-      console.log(arguments);
+      console.log(data);
     });
     
     //]]>

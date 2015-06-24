@@ -1,5 +1,14 @@
 describe("Defer State Machine", function() {
   
+  var checkReturn = function(expectedEventData) {
+    return function(eventData) {
+      expect(eventData.from).toBe(expectedEventData.from);
+      expect(eventData.to).toBe(expectedEventData.to);
+      expect(eventData.transition).toBe(expectedEventData.transition);
+      expect(eventData.options).toBe(expectedEventData.options);
+    };
+  };
+
   beforeEach(function() {
     this.fsm = Ockham.create({
       config: function(fsm) {
@@ -22,7 +31,7 @@ describe("Defer State Machine", function() {
       },
       blink : function(fsm, options) {
         return new Promise(function(resolve, reject) {
-          // fsm.deferTransition("on");
+          fsm.deferTransition("turn_on", options);
           resolve('blink', options);
         });
       }
@@ -35,9 +44,7 @@ describe("Defer State Machine", function() {
 
   describe("Transition to 'init'", function() {
     beforeEach(function(done) {
-      this.fsm.doTransition('init').finally(function() {
-        done();
-      });
+      this.fsm.doTransition('init').finally(done);
     });
 
     it("state should be off", function() {
@@ -46,13 +53,17 @@ describe("Defer State Machine", function() {
 
     describe("Transition to 'blink'", function() {
       beforeEach(function(done) {
-        this.fsm.doTransition('blink').finally(function() {
-          done();
-        });
+        var options = {one: "One", two: "two"}
+        this.fsm.doTransition('blink', options).then(checkReturn({
+          from: 'blink',
+          to: 'on',
+          transition: 'turn_on',
+          options: options
+        })).finally(done);
       });
       
       it("state should be on", function() {
-        expect(this.fsm.current.getCompleteName()).toBe("blink");
+        expect(this.fsm.current.getCompleteName()).toBe("on");
       });
     });
   });
