@@ -1,92 +1,92 @@
 (function() {
-    var OckhamError = function(message) {
-        return {
-            name: "OckhamError",
-            level: "Show Stopper",
-            message: message,
-            htmlMessage: message,
-            toString: function() {
-                return this.name + ": " + this.message;
-            }
-        };
-    };
-
-    var OckhamState = function(name, parent) {
-        this.name = name;
-        this.parent = parent;
-        this.from_transitions = {};
-    };
-
-    OckhamState.prototype.getCompleteName = function() {
-        var parent = this.parent,
-            names = [];
-        if (this.parent) {
-            names.push(this.parent.getCompleteName());
-        }
-        names.push(this.name);
-        return names.join('-');
-    };
-
-    OckhamState.prototype.addTransition = function(from, transition) {
-        // Solo puede haber un estado final para cada transicion
-        this.from_transitions[from] = transition;
-    };
-
-    OckhamState.prototype.can = function(transition) {
-        if (!_.isUndefined(this.from_transitions[transition])) {
-            return true;
-        }
-        // Si no esta definido en el propio estado buscarlo en los padres
-        if (this.parent) {
-            return this.parent.can(transition);
-        }
-        return false;
-    };
-
-    OckhamState.prototype.doTransition = function(fsm, transition, options) {
-        var that = this,
-            promise,
-            transition_fn = that.from_transitions[transition];
-
-        // Si este estado no acepta la transicion, pasarselo al padre
-        if (that.from_transitions[transition]) {
-            if (_.isFunction(transition_fn)) {
-                promise = transition_fn(fsm, options);
-            } else {
-                promise = new Promise(function(resolve, reject) {
-                    resolve(that.from_transitions[transition], options);
-                });
-            }
-        } else {
-            if (that.parent) {
-                promise = that.parent.doTransition(fsm, transition, options);
-            }
-        }
-
-        // Comprobar que se pueda hacer la transicion
-        if (promise) {
-            return promise;
-        }
-        return Promise.reject(new OckhamError("No transition '" + transition + "' in state: '" + that.getCompleteName() + "'"));
-    };
-
     var Ockham = {
+        error: function(message) {
+            return {
+                name: "OckhamError",
+                level: "Show Stopper",
+                message: message,
+                htmlMessage: message,
+                toString: function() {
+                    return this.name + ": " + this.message;
+                }
+            };
+        },
+        state: function(ockham, name, parent) {
+            var from_transitions = [];
+            var getCompleteName = function() {
+                var names = [];
+                if (parent) {
+                    names.push(parent.getCompleteName());
+                }
+                names.push(name);
+                return names.join('-');
+            };
+
+            var addTransition = function(from, transition) {
+                // Solo puede haber un estado final para cada transicion
+                from_transitions[from] = transition;
+            };
+
+            var can = function(transition) {
+                if (!_.isUndefined(from_transitions[transition])) {
+                    return true;
+                }
+                // Si no esta definido en el propio estado buscarlo en los padres
+                if (parent) {
+                    return parent.can(transition);
+                }
+                return false;
+            };
+
+            var doTransition = function(fsm, transition, options) {
+                var promise,
+                    transition_fn = from_transitions[transition];
+
+                // Si este estado no acepta la transicion, pasarselo al padre
+                if (from_transitions[transition]) {
+                    if (_.isFunction(transition_fn)) {
+                        promise = transition_fn(fsm, options);
+                    } else {
+                        promise = new Promise(function(resolve, reject) {
+                            resolve(from_transitions[transition], options);
+                        });
+                    }
+                } else {
+                    if (parent) {
+                        promise = parent.doTransition(fsm, transition, options);
+                    }
+                }
+
+                // Comprobar que se pueda hacer la transicion
+                if (promise) {
+                    return promise;
+                }
+                return Promise.reject(new ockham.error("No transition '" + transition + "' in state: '" + getCompleteName() + "'"));
+            };
+
+            return {
+                getCompleteName: getCompleteName,
+                addTransition: addTransition,
+                can: can,
+                doTransition: doTransition
+            };
+        },
+
         fsm: function(cfg) {
-          var current = null;
-          var states = {};
-          var transition_queue = [];
-          
-            var _createState = function(name, data, parent) {
+            var current = null;
+            var states = {};
+            var transition_queue = [];
+            var _createState = function(ockham, name, data, parent) {
                 var state_obj;
                 // Crear el estado y guardarlo
-                state_obj = new OckhamState(name, parent);
+                state_obj = new ockham.state(ockham, name, parent);
                 states[state_obj.getCompleteName()] = state_obj;
 
                 // Crear las transiciones
                 _.each(data, function(data, key) {
                     if (key === 'states') {
                         _.each(data, function(state_data, substate) {
-                            _createState(substate, state_data, state_obj);
+                            _createState(ockham, substate, state_data, state_obj);
                         }, this);
                     } else {
                         state_obj.addTransition(key, data);
@@ -103,17 +103,18 @@
             var cannot = function(transition) {
                 return !can(transition);
             };
-            
+
             var currentName = function() {
-              return current.getCompleteName();
+                return current.getCompleteName();
             };
-            
+
             var is = function(state) {
                 if (current) {
                     return current.getCompleteName() === state;
                 }
                 return false;
             };
+
             var doTransition = function(transition, options) {
                 var from, eventData, that = this;
 
@@ -149,16 +150,16 @@
                 if (_.isEmpty(transition_queue)) {
                     return Promise.resolve(eventData);
                 }
-                
+
                 // Devolver el primer elemento de la cola de transicion
                 data = _.first(transition_queue);
                 promise = doTransition(data.transition, data.options);
-                
+
                 // Quitar el elemento del array
-                transition_queue.splice(0,1);
+                transition_queue.splice(0, 1);
                 return promise;
             };
-            
+
             var ret = _.extend({
                 can: can,
                 cannot: cannot,
@@ -172,8 +173,8 @@
             // Travel each state configuration
             _.each(ret.states, function(data, state) {
                 // Crear los estados raiz
-                _createState(state, data, null);
-            }, ret);
+                _createState(this, state, data, null);
+            }, this);
 
             // Siempre se empieza por el estado 'none'
             // TODO: Hacerlo configurable ??

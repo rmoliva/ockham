@@ -5,7 +5,8 @@ module.exports = function(grunt) {
       mangle: {
         except: ['jQuery']
       },
-      wrap: true
+      wrap: true,
+      files: grunt.file.readJSON('files.json'),
     },
     min_build: {
       options: {

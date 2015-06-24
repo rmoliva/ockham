@@ -48,7 +48,7 @@
     });
 
     fsm.doTransition('init').then(function(data) {
-      return fsm.doTransition('round', {1: "Uno",2: "Dos"});
+      return fsm.doTransition('turn', {1: "Uno",2: "Dos"});
     }).then(function(data) {
       console.log(data);
     });

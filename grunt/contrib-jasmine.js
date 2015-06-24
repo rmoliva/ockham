@@ -2,7 +2,7 @@ module.exports = function(grunt) {
   
   grunt.config('jasmine', {
     generic: {
-      src: 'src/**/*.js',
+      src: grunt.file.readJSON('files.json'),
       options: {
         specs: 'spec/**/*Spec.js',
         helpers: 'spec/*Helper.js',
