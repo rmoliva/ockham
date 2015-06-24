@@ -1,4 +1,4 @@
-/*! ockham.js - v0.0.1+build.1434809699303 - 2015-06-20 */(function() {
+/*! ockham.js - v0.0.1+build.1434809699303 - 2015-06-24 */(function() {
     var OckhamError = function(message) {
         return {
             name: "OckhamError",
@@ -32,18 +32,23 @@
         this.from_transitions[from] = to;
     };
 
-    OckhamState.prototype.doTransition = function(transition, options) {
+    OckhamState.prototype.doTransition = function(fsm, transition, options) {
         var that = this,
-            promise;
+            promise, 
+            transition_fn = fsm.getTransitionFn(that.from_transitions[transition]);
 
         // Si este estado no acepta la transicion, pasarselo al padre
         if (that.from_transitions[transition]) {
+          if(_.isFunction(transition_fn)) {
+            promise = transition_fn(fsm, options);
+          } else {
             promise = new Promise(function(resolve, reject) {
-                resolve(that.from_transitions[transition]);
+                resolve(that.from_transitions[transition],options);
             });
+          }
         } else {
             if (that.parent) {
-                promise = that.parent.doTransition(transition, options);
+                promise = that.parent.doTransition(fsm, transition, options);
             }
         }
 
@@ -59,16 +64,20 @@
         create: function(cfg, target) {
             var fsm = {
                 current: null,
-                states: {}
+                states: {},
+                transition_queue: [],
+                transitions: cfg.transitions
             };
             target = target || {};
+            
+            fsm = _.extend(fsm, target);
 
             // Travel each state configuration
             _.each(cfg.states, function(data, state) {
                 // Crear los estados raiz
                 this._createState(fsm, state, data, null);
             }, this);
-
+            
             fsm.test = function() {
                 return true;
             };
@@ -77,8 +86,11 @@
             // TODO: Hacerlo configurable ??
             fsm.current = fsm.states['none'];
             fsm.doTransition = this.doTransition;
+            fsm.processTransitionQueue = this.processTransitionQueue;
+            fsm.deferTransition = this.deferTransition;
+            fsm.getTransitionFn = this.getTransitionFn;
 
-            return _.merge(fsm, target);
+            return fsm;
         },
         _createState: function(fsm, name, data, parent) {
             var state_obj;
@@ -97,13 +109,16 @@
                 }
             }, this);
         },
+        getTransitionFn: function(transition) {
+          return this.transitions[transition]; 
+        },
         doTransition: function(transition, options) {
             var from, eventData, that = this;
 
-            // TODO: Debe de haber un estado seleccionado, siempre devolver un promise
+            // Debe de haber un estado seleccionado, siempre devolver un promise
 
             // Delegar en el estado actual la transicion
-            return that.current.doTransition(transition, options).then(function(to) {
+            return that.current.doTransition(that, transition, options).then(function(to) {
                 from = that.current.getCompleteName();
 
                 // Cambiar al estado destino
@@ -116,7 +131,21 @@
                     options: options
                 };
                 return eventData;
+            }).then(function(eventData) {
+              return that.processTransitionQueue(eventData); 
             });
+        },
+        deferTransition: function(transition, options) {
+          this.transition_queue.push({transition: transition, options: options});
+        },
+        processTransitionQueue: function(eventData) {
+          if(_.isEmpty(this.transition_queue)) {
+            return Promise.resolve(eventData);
+          }
+          
+          return _.map(this.transition_queue, function(data) {
+            return this.doTransition(data.transition, data.options);
+          }, this);
         }
     };
 

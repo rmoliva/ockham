@@ -54,9 +54,7 @@ describe("Default State Machine", function() {
 
   describe("Transition 'init' from 'none' to 'green'", function() {
     beforeEach(function(done) {
-      this.fsm.doTransition('init').then(function() {
-        done();
-      });
+      this.fsm.doTransition('init').finally(done);
     });
 
     it("state should be green", function() {
@@ -75,7 +73,7 @@ describe("Default State Machine", function() {
     
     describe("Transition 'blink' from 'green' to 'green-blink'", function() {
       beforeEach(function(done) {
-        this.fsm.doTransition('blink').then(done);
+        this.fsm.doTransition('blink').finally(done);
       });
       
       it("state should be green-blink", function() {
@@ -84,7 +82,7 @@ describe("Default State Machine", function() {
       
       describe("Transition 'cancel' from 'green-blink' to 'green'", function() {
         beforeEach(function(done) {
-          this.fsm.doTransition('cancel').then(done);
+          this.fsm.doTransition('cancel').finally(done);
         });
         
         it("state should be green", function() {
@@ -94,7 +92,7 @@ describe("Default State Machine", function() {
 
       describe("Transition 'warn' from 'green-blink' to 'yellow'", function() {
         beforeEach(function(done) {
-          this.fsm.doTransition('warn').then(done);
+          this.fsm.doTransition('warn').finally(done);
         });
         
         it("state should be yellow", function() {
@@ -105,7 +103,7 @@ describe("Default State Machine", function() {
 
     describe("Transition 'warn' from 'green' to 'yellow'", function() {
       beforeEach(function(done) {
-        this.fsm.doTransition('warn').then(done);
+        this.fsm.doTransition('warn').finally(done);
       });
       
       it("state should be yellow", function() {
@@ -114,7 +112,7 @@ describe("Default State Machine", function() {
       
       describe("Transition 'panic' from 'yellow' to 'red'", function() {
         beforeEach(function(done) {
-          this.fsm.doTransition('panic').then(done);
+          this.fsm.doTransition('panic').finally(done);
         });
         
         it("state should be red", function() {
@@ -123,7 +121,7 @@ describe("Default State Machine", function() {
         
         describe("Transition 'calm' from 'red' to 'yellow'", function() {
           beforeEach(function(done) {
-            this.fsm.doTransition('calm').then(done);
+            this.fsm.doTransition('calm').finally(done);
           });
           
           it("state should be yellow", function() {
@@ -133,7 +131,7 @@ describe("Default State Machine", function() {
         
         describe("Transition 'clear' from 'red' to 'green'", function() {
           beforeEach(function(done) {
-            this.fsm.doTransition('clear').then(done);
+            this.fsm.doTransition('clear').finally(done);
           });
           
           it("state should be green", function() {
@@ -143,7 +141,7 @@ describe("Default State Machine", function() {
         
         describe("Transition 'blink' from 'red' to 'red-blink'", function() {
           beforeEach(function(done) {
-            this.fsm.doTransition('blink').then(done);
+            this.fsm.doTransition('blink').finally(done);
           });
           
           it("state should be red-blink", function() {
@@ -152,7 +150,7 @@ describe("Default State Machine", function() {
           
           describe("Transition 'clear_blink' from 'red-blink' to 'green-blink'", function() {
             beforeEach(function(done) {
-              this.fsm.doTransition('clear_blink').then(done);
+              this.fsm.doTransition('clear_blink').finally(done);
             });
             
             it("state should be green-blink", function() {
@@ -162,7 +160,7 @@ describe("Default State Machine", function() {
           
           describe("Transition 'calm' from 'red-blink' to 'yellow'", function() {
             beforeEach(function(done) {
-              this.fsm.doTransition('calm').then(done);
+              this.fsm.doTransition('calm').finally(done);
             });
             
             it("state should be yellow", function() {
@@ -172,7 +170,7 @@ describe("Default State Machine", function() {
           
           describe("Transition 'clear' from 'red-blink' to 'green'", function() {
             beforeEach(function(done) {
-              this.fsm.doTransition('clear').then(done);
+              this.fsm.doTransition('clear').finally(done);
             });
             
             it("state should be green", function() {
@@ -184,7 +182,7 @@ describe("Default State Machine", function() {
       
       describe("Transition 'clear' from 'yellow' to 'green'", function() {
         beforeEach(function(done) {
-          this.fsm.doTransition('clear').then(done);
+          this.fsm.doTransition('clear').finally(done);
         });
         
         it("state should be green", function() {
@@ -194,7 +192,7 @@ describe("Default State Machine", function() {
 
       describe("Transition 'blink' from 'yellow' to 'yellow-blink'", function() {
         beforeEach(function(done) {
-          this.fsm.doTransition('blink').then(done);
+          this.fsm.doTransition('blink').finally(done);
         });
         
         it("state should be yellow-blink", function() {
@@ -203,7 +201,7 @@ describe("Default State Machine", function() {
         
         describe("Transition 'panic' from 'yellow-blink' to 'red'", function() {
           beforeEach(function(done) {
-            this.fsm.doTransition('panic').then(done);
+            this.fsm.doTransition('panic').finally(done);
           });
           
           it("state should be red", function() {
@@ -213,7 +211,7 @@ describe("Default State Machine", function() {
 
         describe("Transition 'clear' from 'yellow-blink' to 'green'", function() {
           beforeEach(function(done) {
-            this.fsm.doTransition('clear').then(done);
+            this.fsm.doTransition('clear').finally(done);
           });
           
           it("state should be green", function() {
@@ -223,7 +221,7 @@ describe("Default State Machine", function() {
 
         describe("Transition 'cancel' from 'yellow-blink' to 'yellow'", function() {
           beforeEach(function(done) {
-            this.fsm.doTransition('cancel').then(done);
+            this.fsm.doTransition('cancel').finally(done);
           });
           
           it("state should be yellow", function() {

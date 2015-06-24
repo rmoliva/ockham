@@ -10,55 +10,38 @@
 
 
     <script type="text/javascript">
-    //<![CDATA[
-    var fsm = Ockham.create({
+    //<![CDATA[    
+    var fsm = Ockham.create({        
       states: {
         none: {
-          init: 'green'
+          init: 'off'
         },
-        green: {
-          warn: 'yellow',
-          blink: 'green-blink',
-          states: {
-            blink: {
-              cancel: 'green'
-            }
-          }
+        off: {
+          start: 'start'
         },
-        yellow: {
-          panic: 'red',
-          clear: 'green',
-          blink: 'yellow-blink',
-          states: {
-            blink: {
-              cancel: 'yellow'
-            }
-          }
+        on: {
+          stop: 'stop'
+        }
+      },
+      transitions: {
+        'start': function(fsm, options) {
+          return new Promise(function(resolve, reject) {
+            resolve('on');
+          });
         },
-        red: {
-          calm: 'yellow',
-          clear: 'green',
-          blink: 'blink',
-          states: {
-            blink: {
-              clear_blink: 'green-blink'
-            }
-          }
-        } 
+        'stop': function(fsm, options) {
+          return new Promise(function(resolve, reject) {
+            resolve('off');
+          });
+        }
       }
     });
+
     fsm.doTransition('init', {1: "Uno",2: "Dos"}).then(function(data) {
       // green 
-      return fsm.doTransition('blink');
+      return fsm.doTransition('start');
     }).then(function() {
-      // green-blink
-      return fsm.doTransition('cancel');
-    }).then(function() {
-      // green
-      return fsm.doTransition('warn');
-    }).then(function() {
-      // yellow
-      console.log(fsm.current);
+      console.log(arguments);
     });
     
     //]]>
