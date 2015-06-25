@@ -12,57 +12,56 @@
             };
         },
         state: function(ockham, name, parent) {
-            var from_transitions = [];
-            var getCompleteName = function() {
-                var names = [];
-                if (parent) {
-                    names.push(parent.getCompleteName());
-                }
-                names.push(name);
-                return names.join('-');
-            };
-
-            var addTransition = function(from, transition) {
-                // Solo puede haber un estado final para cada transicion
-                from_transitions[from] = transition;
-            };
-
-            var can = function(transition) {
-                if (!_.isUndefined(from_transitions[transition])) {
-                    return true;
-                }
-                // Si no esta definido en el propio estado buscarlo en los padres
-                if (parent) {
-                    return parent.can(transition);
-                }
-                return false;
-            };
-
-            var doTransition = function(fsm, transition, options) {
-                var promise,
-                    transition_fn = from_transitions[transition];
-
-                // Si este estado no acepta la transicion, pasarselo al padre
-                if (from_transitions[transition]) {
-                    if (_.isFunction(transition_fn)) {
-                        promise = transition_fn(fsm, options);
-                    } else {
-                        promise = new Promise(function(resolve, reject) {
-                            resolve(from_transitions[transition], options);
-                        });
-                    }
-                } else {
+            var from_transitions = [],
+                getCompleteName = function() {
+                    var names = [];
                     if (parent) {
-                        promise = parent.doTransition(fsm, transition, options);
+                        names.push(parent.getCompleteName());
                     }
-                }
+                    names.push(name);
+                    return names.join('-');
+                },
+                addTransition = function(from, transition) {
+                    // Only one final state for each transition
+                    from_transitions[from] = transition;
+                },
+                can = function(transition) {
+                    if (!_.isUndefined(from_transitions[transition])) {
+                        return true;
+                    }
+                    // If the transition is not defined in this state,
+                    // search it on the parents
+                    if (parent) {
+                        return parent.can(transition);
+                    }
+                    return false;
+                },
+                doTransition = function(fsm, transition, options) {
+                    var promise,
+                        transition_fn = from_transitions[transition];
 
-                // Comprobar que se pueda hacer la transicion
-                if (promise) {
-                    return promise;
-                }
-                return Promise.reject(new ockham.error("No transition '" + transition + "' in state: '" + getCompleteName() + "'"));
-            };
+                    // If this state does not allow the transition, pass it to
+                    // the parents
+                    if (from_transitions[transition]) {
+                        if (_.isFunction(transition_fn)) {
+                            promise = transition_fn(fsm, options);
+                        } else {
+                            promise = new Promise(function(resolve, reject) {
+                                resolve(from_transitions[transition], options);
+                            });
+                        }
+                    } else {
+                        if (parent) {
+                            promise = parent.doTransition(fsm, transition, options);
+                        }
+                    }
+
+                    // Check if the transtion can be done
+                    if (promise) {
+                        return promise;
+                    }
+                    return Promise.reject(new ockham.error("No transition '" + transition + "' in state: '" + getCompleteName() + "'"));
+                };
 
             return {
                 getCompleteName: getCompleteName,
@@ -73,120 +72,112 @@
         },
 
         fsm: function(cfg) {
-            var current = null;
-            var states = {};
-            var transition_queue = [];
-            var _createState = function(ockham, name, data, parent) {
-                var state_obj;
-                // Crear el estado y guardarlo
-                state_obj = new ockham.state(ockham, name, parent);
-                states[state_obj.getCompleteName()] = state_obj;
+            var current = null,
+                states = {},
+                transition_queue = [],
+                _createState = function(ockham, name, data, parent) {
+                    var state_obj;
+                    // Create and save the state
+                    state_obj = new ockham.state(ockham, name, parent);
+                    states[state_obj.getCompleteName()] = state_obj;
 
-                // Crear las transiciones
-                _.each(data, function(data, key) {
-                    if (key === 'states') {
-                        _.each(data, function(state_data, substate) {
-                            _createState(ockham, substate, state_data, state_obj);
-                        }, this);
-                    } else {
-                        state_obj.addTransition(key, data);
+                    _.each(data, function(data, key) {
+                        if (key === 'states') {
+                          // Create the child states 
+                            _.each(data, function(state_data, substate) {
+                                _createState(ockham, substate, state_data, state_obj);
+                            }, this);
+                        } else {
+                            // Create the transitions
+                            state_obj.addTransition(key, data);
+                        }
+                    }, this);
+                },
+                can = function(transition) {
+                    if (current) {
+                        return current.can(transition);
                     }
-                }, this);
-            };
+                    return false;
+                },
+                cannot = function(transition) {
+                    return !can(transition);
+                },
+                currentName = function() {
+                    return current.getCompleteName();
+                },
+                is = function(state) {
+                    if (current) {
+                        return current.getCompleteName() === state;
+                    }
+                    return false;
+                },
+                doTransition = function(transition, options) {
+                    var from, eventData, that = this;
 
-            var can = function(transition) {
-                if (current) {
-                    return current.can(transition);
-                }
-                return false;
-            };
-            var cannot = function(transition) {
-                return !can(transition);
-            };
+                    // Delegate transition to the current state
+                    return current.doTransition(that, transition, options).then(function(to) {
+                        from = current.getCompleteName();
 
-            var currentName = function() {
-                return current.getCompleteName();
-            };
+                        // Change to target state
+                        current = states[to];
 
-            var is = function(state) {
-                if (current) {
-                    return current.getCompleteName() === state;
-                }
-                return false;
-            };
-
-            var doTransition = function(transition, options) {
-                var from, eventData, that = this;
-
-                // Debe de haber un estado seleccionado, siempre devolver un promise
-
-                // Delegar en el estado actual la transicion
-                return current.doTransition(that, transition, options).then(function(to) {
-                    from = current.getCompleteName();
-
-                    // Cambiar al estado destino
-                    current = states[to];
-
-                    eventData = {
-                        from: from,
-                        to: current.getCompleteName(),
+                        eventData = {
+                            from: from,
+                            to: current.getCompleteName(),
+                            transition: transition,
+                            options: options
+                        };
+                        return eventData;
+                    }).then(function(eventData) {
+                        return processTransitionQueue(eventData);
+                    });
+                },
+                deferTransition = function(transition, options) {
+                    transition_queue.push({
                         transition: transition,
                         options: options
-                    };
-                    return eventData;
-                }).then(function(eventData) {
-                    return processTransitionQueue(eventData);
-                });
-            };
-            var deferTransition = function(transition, options) {
-                transition_queue.push({
-                    transition: transition,
-                    options: options
-                });
-            };
-            var processTransitionQueue = function(eventData) {
-                var promise_queue, data, promise;
+                    });
+                },
+                processTransitionQueue = function(eventData) {
+                    var promise_queue, data, promise;
 
-                if (_.isEmpty(transition_queue)) {
-                    return Promise.resolve(eventData);
-                }
+                    if (_.isEmpty(transition_queue)) {
+                        return Promise.resolve(eventData);
+                    }
 
-                // Devolver el primer elemento de la cola de transicion
-                data = _.first(transition_queue);
-                promise = doTransition(data.transition, data.options);
+                    // Return first element of the transition queue
+                    data = _.first(transition_queue);
+                    promise = doTransition(data.transition, data.options);
 
-                // Quitar el elemento del array
-                transition_queue.splice(0, 1);
-                return promise;
-            };
-
-            var ret = _.extend({
-                can: can,
-                cannot: cannot,
-                is: is,
-                doTransition: doTransition,
-                deferTransition: deferTransition,
-                processTransitionQueue: processTransitionQueue,
-                currentName: currentName
-            }, cfg.config(this));
+                    // Remove elemento from the array
+                    transition_queue.splice(0, 1);
+                    return promise;
+                },
+                ret = _.extend({
+                    can: can,
+                    cannot: cannot,
+                    is: is,
+                    doTransition: doTransition,
+                    deferTransition: deferTransition,
+                    processTransitionQueue: processTransitionQueue,
+                    currentName: currentName
+                }, cfg.config(this));
 
             // Travel each state configuration
             _.each(ret.states, function(data, state) {
-                // Crear los estados raiz
+                // Create root states
                 _createState(this, state, data, null);
             }, this);
 
-            // Siempre se empieza por el estado 'none'
-            // TODO: Hacerlo configurable ??
+            // Always start with "none" state 
+            // TODO: Should it be configurable??
             current = states.none;
 
             return ret;
         },
 
         create: function(cfg) {
-            var fsm = this.fsm(cfg);
-
-            return fsm;
+            return this.fsm(cfg);
         }
     };
 
