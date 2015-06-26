@@ -2,6 +2,14 @@ language: node_js
 node_js:
 - "0.10"
 before_install:
-- npm install -g grunt-cli
+before_script:
+  - npm install -g grunt-cli
+  - npm install -g codeclimate-test-reporter
+  - npm install -d
+branches:
+  only:
+    - master
 script:
-- grunt jasmine
+  - grunt jasmine
+after_success:
+  - CODECLIMATE_REPO_TOKEN=182f73ff212ec48a134846e7be8000ad6ee0a2103679648316499d76b90af994 codeclimate < ./coverage/lcov/lcov.info

@@ -10,7 +10,22 @@ module.exports = function(grunt) {
           'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.js',
           'https://cdnjs.cloudflare.com/ajax/libs/bluebird/2.9.30/bluebird.js'
         ],
-        display: "full"
+        display: "full",
+        template: require('grunt-template-jasmine-istanbul'),
+        templateOptions: {
+            coverage: 'coverage/coverage.json',
+            report: [
+                {
+                    type: 'lcov',
+                    options: {
+                        dir: 'coverage/lcov'
+                    }
+                },
+                {
+                    type: 'text-summary'
+                }
+            ]
+        }
       }
     }
   });
