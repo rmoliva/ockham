@@ -84,20 +84,28 @@ describe("Default State Machine", function() {
       expect(this.fsm.is("green")).toBe(true);
     });
     
-    it("return eventDataCorrectly", function() {
+    it("is 'green' return true", function() {
       expect(this.fsm.is("green")).toBe(true);
     });
     
-    it("can transition to 'warn", function() {
+    it("is 'red' return false", function() {
+      expect(this.fsm.is("green")).toBe(true);
+    });
+
+    it("can transition to 'warn'", function() {
       expect(this.fsm.can("warn")).toBe(true);
     });
 
-    it("can transition to 'blink", function() {
+    it("can transition to 'blink'", function() {
       expect(this.fsm.can("blink")).toBe(true);
     });
     
-    it("cannot transition to 'panic", function() {
+    it("cannot transition to 'panic'", function() {
       expect(this.fsm.cannot("panic")).toBe(true);
+    });
+
+    it("can transition to 'panic' should return false", function() {
+      expect(this.fsm.can("panic")).toBe(false);
     });
 
     describe("Transition to 'panic'", function() {
