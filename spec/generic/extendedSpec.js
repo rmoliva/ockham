@@ -88,6 +88,18 @@ describe("Extended State Machine", function() {
         expect(this.fsm.is("off-blink")).toBe(true);
       });
       
+      it("can transition to 'start'", function() {
+        expect(this.fsm.can("start")).toBe(true);
+      });
+
+      it("can transition to 'blink'", function() {
+        expect(this.fsm.can("blink")).toBe(true);
+      });
+
+      it("can transition to 'cancel'", function() {
+        expect(this.fsm.can("cancel")).toBe(true);
+      });
+      
       describe("Transition 'cancel' from 'off-blink' to 'off'", function() {
         beforeEach(function(done) {
           this.fsm.doTransition('cancel').finally(done);
@@ -133,9 +145,22 @@ describe("Extended State Machine", function() {
           this.fsm.doTransition('blink').finally(done);
         });
         
-        it("state should be on", function() {
+        it("state should be on-blink", function() {
           expect(this.fsm.is("on-blink")).toBe(true);
         });
+        
+        it("can transition to 'stop'", function() {
+          expect(this.fsm.can("stop")).toBe(true);
+        });
+
+        it("can transition to 'blink'", function() {
+          expect(this.fsm.can("blink")).toBe(true);
+        });
+
+        it("can transition to 'cancel'", function() {
+          expect(this.fsm.can("cancel")).toBe(true);
+        });
+        
         
         describe("Transition 'cancel' from 'on-blink' to 'on'", function() {
           beforeEach(function(done) {
