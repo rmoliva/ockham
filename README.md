@@ -276,7 +276,30 @@ fsm.doTransition('stop'); // This transition is defined on 'on'
 fsm.currentName(); // => 'off'
 ```
 
-More documntation in progress.... excuse me.
+## API
+
+`Ockham.create`: This is the creator function of an Ockham finite state machine. It must receive an object with a 'config' function:
+
+```javascript
+var fsm = Ockham.create({
+  config: function(fsm) {}
+});
+```
+Once we have an Ockham instance we can call its following methods:
+
+* `can(transition)`: Returns true if the current state can do the transition.
+* `cannot(transition)`: Returns true if the current state cannot do the transition.
+* `currentName()`: Returns the complete name (taking care of inheritance) of the current state.
+* `deferTransition(transition, options)`: Defer a transition to be fullfiled once the current transition has finished.
+* `doTransition(transition, options)`: Execute transition in the current state
+
+## Dependencies
+
+Currently Ockhan has the following dependencies:
+* [Lodash](https://lodash.com)
+* [Bluebird](https://github.com/petkaantonov/bluebird)
+
+I will try to remove them whenever I can.
 
 ## Testing Okcham
 

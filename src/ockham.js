@@ -156,11 +156,10 @@
                 ret = _.extend({
                     can: can,
                     cannot: cannot,
-                    is: is,
-                    doTransition: doTransition,
+                    currentName: currentName,
                     deferTransition: deferTransition,
-                    processTransitionQueue: processTransitionQueue,
-                    currentName: currentName
+                    doTransition: doTransition,
+                    is: is
                 }, cfg.config(this));
 
             // Travel each state configuration
