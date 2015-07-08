@@ -291,7 +291,8 @@ Once we have an Ockham instance we can call its following methods:
 * `cannot(transition)`: Returns true if the current state cannot do the transition.
 * `currentName()`: Returns the complete name (taking care of inheritance) of the current state.
 * `deferTransition(transition, options)`: Defer a transition to be fullfiled once the current transition has finished.
-* `doTransition(transition, options)`: Execute transition in the current state
+* `doTransition(transition, options)`: Execute transition in the current state.
+* `is(state)`: Return true if the current state is the passed state. 
 
 ## Dependencies
 
