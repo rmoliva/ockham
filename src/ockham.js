@@ -46,9 +46,7 @@
                         if (_.isFunction(transition_fn)) {
                             promise = transition_fn(fsm, options);
                         } else {
-                            promise = new Promise(function(resolve, reject) {
-                                resolve(from_transitions[transition], options);
-                            });
+                            promise = Promise.resolve(from_transitions[transition], options);
                         }
                     } else {
                         if (parent) {
@@ -94,10 +92,8 @@
                     }, this);
                 },
                 can = function(transition) {
-                    if (current) {
-                        return current.can(transition);
-                    }
-                    return false;
+                    // We always expect a current state 
+                    return current.can(transition);
                 },
                 cannot = function(transition) {
                     return !can(transition);
@@ -106,10 +102,8 @@
                     return current.getCompleteName();
                 },
                 is = function(state) {
-                    if (current) {
-                        return current.getCompleteName() === state;
-                    }
-                    return false;
+                    // We always expect a current state 
+                    return current.getCompleteName() === state;
                 },
                 doTransition = function(transition, options) {
                     var from, eventData, that = this;
@@ -181,44 +175,5 @@
     };
 
     // Ockham
-
-    //===========================================================================
-
-    // As for several things in this project, thanks to:
-    // https://github.com/jakesgordon/javascript-state-machine/blob/master/state-machine.js
-
-    //======
-    // NODE
-    //======
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = Ockham;
-        }
-        exports.Ockham = Ockham;
-    }
-
-    //============
-    // AMD/REQUIRE
-    //============
-    else if (typeof define === 'function' && define.amd) {
-        define(function(require) {
-            return Ockham;
-        });
-    }
-
-    //========
-    // BROWSER
-    //========
-    else if (typeof window !== 'undefined') {
-        window.Ockham = Ockham;
-    }
-
-    //===========
-    // WEB WORKER
-    //===========
-    else if (typeof self !== 'undefined') {
-        self.Ockham = Ockham;
-    }
-
-
+    window.Ockham = Ockham;
 }());

@@ -316,6 +316,7 @@ I will try to remove them whenever I can.
 
 * Improve documentation
 * Improve stability working with other projects...
+* Support forn Node, AMD, Web worker...
 
 ## License
 

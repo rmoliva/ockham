@@ -89,7 +89,7 @@ describe("Default State Machine", function() {
     });
     
     it("is 'red' return false", function() {
-      expect(this.fsm.is("green")).toBe(true);
+      expect(this.fsm.is("red")).toBe(false);
     });
 
     it("can transition to 'warn'", function() {
