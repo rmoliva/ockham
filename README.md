@@ -209,7 +209,7 @@ fsm.currentName(); // => 'off'
 
 ## Nested states
 
-States can be nested also. This feature eases the develop of more complex state machines.
+States can also be nested. This feature eases the develop of more complex state machines.
 You have to take care of the following:
 * Nested states implements the [Liskov Substition Principle](https://en.wikipedia.org/wiki/Liskov_substitution_principle): Basically if a state cannot handle a transition it will ask for the parent to do it.
 * The current name of a child state is the name of the parent and the child joined with a dash (parent-child)
