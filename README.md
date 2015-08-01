@@ -69,7 +69,7 @@ fsm.currentName(); // => 'yellow'
 
 We can also define the transition functions. We have to be aware of the following:
 * We have to define the transition to be a Promise.
-* We can pass an optional object with the call to be received by the promise function.
+* We can pass an optional object within the call to be received by the promise function.
 * We have to resolve the promise with the name of the final state of the transition and the options object received.
 
 An example explaining all:
