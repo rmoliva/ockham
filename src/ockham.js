@@ -1,5 +1,6 @@
 (function() {
-    var Ockham = {
+    var Ockham = (function(){
+      return {
         error: function(message) {
             return {
                 name: "OckhamError",
@@ -172,20 +173,14 @@
         create: function(cfg) {
             return this.fsm(cfg);
         }
-    };
+      };
+    })();
 
     // For node
     if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
         module.exports = Ockham;
-    } else {
-        if (typeof define === 'function' && define.amd) {
-            // For AMD
-            define([], function() {
-                return Ockham;
-            });
-        } else {
-            // For Browser
-            window.Ockham = Ockham;
-        }
+     } else {
+        // For Browser
+        window.Ockham = Ockham;
     }
-}());
+})();
