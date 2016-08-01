@@ -1,6 +1,6 @@
 {
-  "name": "ockham.js",
-  "version": "0.0.2",
+  "name": "ockham",
+  "version": "0.0.3",
   "public": true,
   "description": "An opinionated javascript finite state machine",
   "scripts": {
