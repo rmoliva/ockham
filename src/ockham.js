@@ -81,7 +81,7 @@
 
                     _.each(data, function(data, key) {
                         if (key === 'states') {
-                          // Create the child states 
+                            // Create the child states
                             _.each(data, function(state_data, substate) {
                                 _createState(ockham, substate, state_data, state_obj);
                             }, this);
@@ -92,7 +92,7 @@
                     }, this);
                 },
                 can = function(transition) {
-                    // We always expect a current state 
+                    // We always expect a current state
                     return current.can(transition);
                 },
                 cannot = function(transition) {
@@ -102,7 +102,7 @@
                     return current.getCompleteName();
                 },
                 is = function(state) {
-                    // We always expect a current state 
+                    // We always expect a current state
                     return current.getCompleteName() === state;
                 },
                 doTransition = function(transition, options) {
@@ -162,7 +162,7 @@
                 _createState(this, state, data, null);
             }, this);
 
-            // Always start with "none" state 
+            // Always start with "none" state
             // TODO: Should it be configurable??
             current = states.none;
 
@@ -174,6 +174,18 @@
         }
     };
 
-    // Ockham
-    window.Ockham = Ockham;
+    // For node
+    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+        module.exports = Ockham;
+    } else {
+        if (typeof define === 'function' && define.amd) {
+            // For AMD
+            define([], function() {
+                return Ockham;
+            });
+        } else {
+            // For Browser
+            window.Ockham = Ockham;
+        }
+    }
 }());
