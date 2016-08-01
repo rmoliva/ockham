@@ -27,7 +27,7 @@
                         from_transitions[from] = transition;
                     },
                     can = function(transition) {
-                        if (!_.isUndefined(from_transitions[transition])) {
+                        if (from_transitions[transition]) {
                             return true;
                         }
                         // If the transition is not defined in this state,
@@ -44,7 +44,7 @@
                         // If this state does not allow the transition, pass it to
                         // the parents
                         if (from_transitions[transition]) {
-                            if (_.isFunction(transition_fn)) {
+                            if (typeof transition_fn === "function") {
                                 promise = transition_fn(fsm, options);
                             } else {
                                 promise = Promise.resolve(from_transitions[transition], options);
@@ -74,23 +74,26 @@
                 var current = null,
                     states = {},
                     transition_queue = [],
-                    _createState = function(ockham, name, data, parent) {
+                    i,
+                    _createState = function(ockham, name, parent_state_data, parent) {
                         var state_obj;
                         // Create and save the state
                         state_obj = new ockham.state(ockham, name, parent);
                         states[state_obj.getCompleteName()] = state_obj;
 
-                        _.each(data, function(data, key) {
+                        for(key in parent_state_data) {
+                          data = parent_state_data[key];
                             if (key === 'states') {
                                 // Create the child states
-                                _.each(data, function(state_data, substate) {
-                                    _createState(ockham, substate, state_data, state_obj);
-                                }, this);
+                                for(substate in data) {
+                                  state_data = data[substate];
+                                  _createState(ockham, substate, state_data, state_obj);
+                                };
                             } else {
                                 // Create the transitions
                                 state_obj.addTransition(key, data);
                             }
-                        }, this);
+                        };
                     },
                     can = function(transition) {
                         // We always expect a current state
@@ -136,32 +139,32 @@
                     processTransitionQueue = function(eventData) {
                         var promise_queue, data, promise;
 
-                        if (_.isEmpty(transition_queue)) {
+                        if (transition_queue.length === 0) {
                             return Promise.resolve(eventData);
                         }
 
                         // Return first element of the transition queue
-                        data = _.first(transition_queue);
+                        data = transition_queue[0];
                         promise = doTransition(data.transition, data.options);
 
                         // Remove elemento from the array
                         transition_queue.splice(0, 1);
                         return promise;
                     },
-                    ret = _.extend({
-                        can: can,
-                        cannot: cannot,
-                        currentName: currentName,
-                        deferTransition: deferTransition,
-                        doTransition: doTransition,
-                        is: is
-                    }, cfg.config(this));
+                    ret = cfg.config(this);
+                    ret.can = can;
+                    ret.cannot = cannot;
+                    ret.currentName = currentName;
+                    ret.deferTransition = deferTransition;
+                    ret.doTransition = doTransition;
+                    ret.is = is;
 
                 // Travel each state configuration
-                _.each(ret.states, function(data, state) {
-                    // Create root states
-                    _createState(this, state, data, null);
-                }, this);
+                for(state in ret.states) {
+                  data = ret.states[state]
+                  // Create root states
+                  _createState(this, state, data, null);
+                }
 
                 // Always start with "none" state
                 // TODO: Should it be configurable??
