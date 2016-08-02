@@ -13,4 +13,4 @@ script:
   - grunt jasmine
 after_success:
   - npm install codeclimate-test-reporter
-  - codeclimate-test-reporter < coverage/lcov.info
+  - codeclimate-test-reporter < coverage/lcov/lcov.info
