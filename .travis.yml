@@ -12,4 +12,5 @@ branches:
 script:
   - grunt jasmine
 after_success:
-  - CODECLIMATE_REPO_TOKEN=182f73ff212ec48a134846e7be8000ad6ee0a2103679648316499d76b90af994 codeclimate < ./coverage/lcov/lcov.info
+  - npm install codeclimate-test-reporter
+  - codeclimate-test-reporter < coverage/lcov.info

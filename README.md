@@ -3,11 +3,11 @@
 [![Test Coverage](https://codeclimate.com/github/rmoliva/ockham/badges/coverage.svg)](https://codeclimate.com/github/rmoliva/ockham/coverage)
 
 # ockham
-An opinionated javascript finite state machine 
+An opinionated javascript finite state machine
 
 Ockham is a very simple finite state machine controller. It was developed to fullfill a concrete necessity so it is not really a generic solution implementation.
 It has the main following characteristics:
-* Nested states 
+* Nested states
 * Promise transitions
 
 ## Simple State Machine
@@ -33,7 +33,7 @@ var fsm = Ockham.create({
         red: {
           calm: 'yellow',
           clear: 'green'
-        } 
+        }
       }
     };
   }
@@ -48,7 +48,7 @@ fsm.currentName(); // => 'none'
 fsm.is('none'); // => true
 fsm.can('init'); // => true
 
-fsm.doTransition('init'); 
+fsm.doTransition('init');
 fsm.currentName(); // => 'green'
 fsm.is('none'); // => false
 fsm.is('green'); // => true
@@ -105,12 +105,12 @@ var fsm = Ockham.create({
     return new Promise(function(resolve, reject) {
       resolve('off', options);
     });
-  } 
+  }
 });
 
 fsm.currentName(); // => 'none'
 
-fsm.doTransition('init'); 
+fsm.doTransition('init');
 fsm.currentName(); // => 'off'
 
 fsm.doTransition('turn_on');
@@ -136,13 +136,13 @@ For example, we can define the 'turn_on' transition this way:
       }
       else {
         resolve('off', options);
-      } 
+      }
     });
   },
 
 fsm.currentName(); // => 'none'
 
-fsm.doTransition('init'); 
+fsm.doTransition('init');
 fsm.currentName(); // => 'off'
 
 fsm.doTransition('turn_on',{switch: false});
@@ -200,7 +200,7 @@ fsm.currentName(); // => 'off'
 fsm.doTransition('blink'); // When blink transition finishes it will do a turn_on transition
 fsm.currentName(); // => 'on'
 
-fsm.doTransition('turn_off'); 
+fsm.doTransition('turn_off');
 fsm.currentName(); // => 'off'
 
 fsm.doTransition('round'); // When round transition finishes it will do a turn_on transition and then a turn_off
@@ -292,15 +292,14 @@ Once we have an Ockham instance we can call its following methods:
 * `currentName()`: Returns the complete name (taking care of inheritance) of the current state.
 * `deferTransition(transition, options)`: Defer a transition to be fullfiled once the current transition has finished.
 * `doTransition(transition, options)`: Execute transition in the current state.
-* `is(state)`: Return true if the current state is the passed state. 
+* `is(state)`: Return true if the current state is the passed state.
 
 ## Dependencies
 
 Currently Ockhan has the following dependencies:
-* [Lodash](https://lodash.com)
 * [Bluebird](https://github.com/petkaantonov/bluebird)
 
-I will try to remove them whenever I can.
+I will try to remove it whenever I can.
 
 ## Testing Okcham
 
@@ -311,7 +310,7 @@ I will try to remove them whenever I can.
 2. Run the grunt task:
 
     `grunt jasmine`
-    
+
 ## TODO
 
 * Improve documentation
@@ -321,6 +320,3 @@ I will try to remove them whenever I can.
 ## License
 
 Ockham is released under the [MIT License](http://www.opensource.org/licenses/MIT).
-
-
-
