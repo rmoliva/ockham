@@ -1,5 +1,7 @@
 (function() {
     var Ockham = (function() {
+      "use strict";
+
         return {
             error: function(message) {
                 return {
@@ -70,13 +72,23 @@
                 };
             },
 
-            fsm: function(cfg) {
-                var current = null,
+            fsm: function(config_object) {
+                var data,
+                    state,
+                    current = null,
+                    config = config_object.config(this),
                     states = {},
                     transition_queue = [],
-                    i,
+                    _extend = function(target, source) {
+                        for(var prop in source) {
+                            if(source.hasOwnProperty(prop)) {
+                                target[prop] = source[prop];
+                            }
+                        }
+                        return target;
+                    },
                     _createState = function(ockham, name, parent_state_data, parent) {
-                        var state_obj;
+                        var state_obj, key, substate, state_data;
                         // Create and save the state
                         state_obj = new ockham.state(ockham, name, parent);
                         states[state_obj.getCompleteName()] = state_obj;
@@ -88,12 +100,12 @@
                                 for(substate in data) {
                                   state_data = data[substate];
                                   _createState(ockham, substate, state_data, state_obj);
-                                };
+                                }
                             } else {
                                 // Create the transitions
                                 state_obj.addTransition(key, data);
                             }
-                        };
+                        }
                     },
                     can = function(transition) {
                         // We always expect a current state
@@ -150,18 +162,12 @@
                         // Remove elemento from the array
                         transition_queue.splice(0, 1);
                         return promise;
-                    },
-                    ret = cfg.config(this);
-                    ret.can = can;
-                    ret.cannot = cannot;
-                    ret.currentName = currentName;
-                    ret.deferTransition = deferTransition;
-                    ret.doTransition = doTransition;
-                    ret.is = is;
+                    };
 
                 // Travel each state configuration
-                for(state in ret.states) {
-                  data = ret.states[state]
+                for(state in config.states) {
+                  data = config.states[state];
+
                   // Create root states
                   _createState(this, state, data, null);
                 }
@@ -170,10 +176,19 @@
                 // TODO: Should it be configurable??
                 current = states.none;
 
-                return ret;
+                // Extend fsm with passed configuration object
+                return _extend({
+                  can: can,
+                  cannot: cannot,
+                  currentName: currentName,
+                  deferTransition: deferTransition,
+                  doTransition: doTransition,
+                  is: is
+                }, config_object);
             },
 
             create: function(cfg) {
+
                 return this.fsm(cfg);
             }
         };
