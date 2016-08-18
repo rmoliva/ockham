@@ -88,22 +88,22 @@
                         return target;
                     },
                     _createState = function(ockham, name, parent_state_data, parent) {
-                        var state_obj, key, substate, state_data;
+                        var state_obj, key, substate, substate_data, key_data;
                         // Create and save the state
                         state_obj = new ockham.state(ockham, name, parent);
                         states[state_obj.getCompleteName()] = state_obj;
 
                         for(key in parent_state_data) {
-                          data = parent_state_data[key];
+                          key_data = parent_state_data[key];
                             if (key === 'states') {
                                 // Create the child states
-                                for(substate in data) {
-                                  state_data = data[substate];
-                                  _createState(ockham, substate, state_data, state_obj);
+                                for(substate in key_data) {
+                                  substate_data = key_data[substate];
+                                  _createState(ockham, substate, substate_data, state_obj);
                                 }
                             } else {
                                 // Create the transitions
-                                state_obj.addTransition(key, data);
+                                state_obj.addTransition(key, key_data);
                             }
                         }
                     },
