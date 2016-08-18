@@ -1,6 +1,6 @@
 {
   "name": "ockham",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "public": true,
   "description": "An opinionated javascript finite state machine",
   "main": "src/ockham.js",
