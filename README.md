@@ -309,7 +309,7 @@ I will try to remove it whenever I can.
 
 2. Run the grunt task:
 
-    `grunt jasmine`
+    `grunt jasmine:all`
 
 ## TODO
 

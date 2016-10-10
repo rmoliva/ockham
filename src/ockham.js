@@ -1,5 +1,5 @@
-(function() {
-    var Ockham = (function() {
+(function () {
+  var Ockham = (function() {
       "use strict";
 
         return {
@@ -47,7 +47,7 @@
                         // the parents
                         if (from_transitions[transition]) {
                             if (typeof transition_fn === "function") {
-                                promise = transition_fn(fsm, options);
+                                promise = transition_fn(fsm, options, getCompleteName());
                             } else {
                                 promise = Promise.resolve(from_transitions[transition], options);
                             }
