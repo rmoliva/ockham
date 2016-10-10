@@ -10,7 +10,7 @@ branches:
   only:
     - master
 script:
-  - grunt jasmine
+  - grunt jasmine:all
 after_success:
   - npm install codeclimate-test-reporter
   - codeclimate-test-reporter < coverage/lcov/lcov.info
