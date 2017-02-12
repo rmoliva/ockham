@@ -4,9 +4,9 @@
 [![Dependencies](https://david-dm.org/rmoliva/ockham.svg)](https://david-dm.org/rmoliva/ockham.svg)
 
 # ockham
-A Javascript hierachical finite state machine library
+A Javascript hierarchical finite state machine library
 
-Ockham is a very simple finite state machine controller. It was developed to fullfill a concrete necessity so it is not really a generic solution implementation.
+Ockham is a very simple finite state machine controller.
 It has the main following characteristics:
 * Nested states
 * Promise transitions
@@ -124,7 +124,7 @@ fsm.currentState(); // => 'off'
 There is not much difference from the simple example, because this promises are not doing anything. But you can implement whatever you need inside the promise.
 With this approach you can do the following inside the transition promise:
 * Throw an error and no transition would take place.
-* Do a conditional transition an resolve to a diferent state.
+* Do a conditional transition an resolve to a different state.
 * Guard the transition and prevent it to go to the final state.
 
 For example, we can define the 'turn_on' transition this way:
@@ -156,7 +156,7 @@ fsm.currentState(); // => 'on'
 ## Deferring transitions
 
 Sometimes you need to chain several transition. This can be done by deferring transitions.
-You can defer a transition while executing a transition, so the sistem will execute the deferred transition once it has finished the current transition.
+You can defer a transition while executing a transition, so the system will execute the deferred transition once it has finished the current transition.
 
 ```javascript
 var fsm = Ockham.create({
@@ -291,7 +291,7 @@ Once we have an Ockham instance we can call its following methods:
 * `can(transition)`: Returns true if the current state can do the transition.
 * `cannot(transition)`: Returns true if the current state cannot do the transition.
 * `currentState()`: Returns the complete name (taking care of inheritance) of the current state.
-* `deferTransition(transition, options)`: Defer a transition to be fullfiled once the current transition has finished.
+* `deferTransition(transition, options)`: Defer a transition to be fulfilled once the current transition has finished.
 * `doTransition(transition, options)`: Execute transition in the current state.
 * `is(state)`: Return true if the current state is the passed state.
 

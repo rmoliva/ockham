@@ -114,16 +114,25 @@
               states[state_obj.getCompleteName()] = state_obj;
 
               for (key in parent_state_data) {
-                key_data = parent_state_data[key];
-                if (key === 'states') {
-                  // Create the child states
-                  for (substate in key_data) {
-                    substate_data = key_data[substate];
-                    _createState(ockham, substate, substate_data, state_obj);
+                if (parent_state_data.hasOwnProperty(key)) {
+                  key_data = parent_state_data[key];
+                  if (key === 'states') {
+                    // Create the child states
+                    for (substate in key_data) {
+                      if (key_data.hasOwnProperty(substate)) {
+                        substate_data = key_data[substate];
+                        _createState(
+                          ockham,
+                          substate,
+                          substate_data,
+                          state_obj
+                        );
+                      }
+                    }
+                  } else {
+                    // Create the transitions
+                    state_obj.addTransition(key, key_data);
                   }
-                } else {
-                  // Create the transitions
-                  state_obj.addTransition(key, key_data);
                 }
               }
             },
@@ -173,7 +182,7 @@
               });
             },
             processTransitionQueue = function(eventData) {
-              var promise_queue, data, promise;
+              var data, promise;
 
               if (transition_queue.length === 0) {
                 return Promise.resolve(eventData);
@@ -190,10 +199,12 @@
 
           // Travel each state configuration
           for (state in config.states) {
-            data = config.states[state];
+            if (config.states.hasOwnProperty(state)) {
+              data = config.states[state];
 
-            // Create root states
-            _createState(this, state, data, null);
+              // Create root states
+              _createState(this, state, data, null);
+            }
           }
 
           // Always start with "none" state

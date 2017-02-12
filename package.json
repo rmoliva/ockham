@@ -1,6 +1,6 @@
 {
   "name": "ockham",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "public": true,
   "description": "A Javascript hierachical finite state machine library",
   "main": "src/ockham.js",
@@ -15,7 +15,7 @@
     "fsm",
     "finite state machine",
     "promise",
-    "hierachical"
+    "hierarchical"
   ],
   "author": "Roberto M. Oliva <floyd303@gmail.com>",
   "license": "MIT",
