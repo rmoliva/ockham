@@ -1,8 +1,8 @@
 {
   "name": "ockham",
-  "version": "0.0.9",
+  "version": "0.1.1",
   "public": true,
-  "description": "An opinionated javascript finite state machine",
+  "description": "A Javascript hierachical finite state machine library",
   "main": "src/ockham.js",
   "scripts": {
     "test": "grunt jasmine"
@@ -29,17 +29,17 @@
     "grunt-contrib-clean": "~1.0.0",
     "grunt-contrib-concat": "~1.0.1",
     "grunt-contrib-connect": "~1.0.2",
-    "grunt-contrib-jasmine": "^1.0.3",
-    "grunt-contrib-jshint": "~1.0.0",
-    "grunt-contrib-uglify": "~2.0.0",
+    "grunt-contrib-jasmine": "^1.1.0",
+    "grunt-contrib-jshint": "~1.1.0",
+    "grunt-contrib-uglify": "~2.1.0",
     "grunt-contrib-watch": "~1.0.0",
     "grunt-contrib-yuidoc": "~1.0.0",
     "grunt-jsbeautifier": "~0.2.13",
     "grunt-template-jasmine-istanbul": "~0.5.0",
-    "jasmine": "^2.5.2",
-    "lodash": "^4.16.4"
+    "jasmine": "^2.5.3",
+    "lodash": "^4.17.4"
   },
   "dependencies": {
-    "bluebird": "~3.4.6"
+    "bluebird": "~3.4.7"
   }
 }

@@ -1,5 +1,5 @@
 describe("Defer State Machine", function() {
-  
+
   var checkReturn = function(expectedEventData) {
     return function(eventData) {
       expect(eventData.from).toBe(expectedEventData.from);
@@ -45,7 +45,7 @@ describe("Defer State Machine", function() {
       }
     });
   });
-  
+
   it("initial state should be none", function() {
     expect(this.fsm.is("none")).toBe(true);
   });
@@ -69,9 +69,9 @@ describe("Defer State Machine", function() {
           options: options
         })).finally(done);
       });
-      
+
       it("state should be on", function() {
-        expect(this.fsm.currentName()).toBe("on");
+        expect(this.fsm.currentState()).toBe("on");
       });
     });
 
@@ -85,9 +85,9 @@ describe("Defer State Machine", function() {
           options: options
         })).finally(done);
       });
-      
+
       it("state should be off", function() {
-        expect(this.fsm.currentName()).toBe("off");
+        expect(this.fsm.currentState()).toBe("off");
       });
     });
   });

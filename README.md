@@ -3,10 +3,8 @@
 [![Test Coverage](https://codeclimate.com/github/rmoliva/ockham/badges/coverage.svg)](https://codeclimate.com/github/rmoliva/ockham/coverage)
 [![Dependencies](https://david-dm.org/rmoliva/ockham.svg)](https://david-dm.org/rmoliva/ockham.svg)
 
-
-
 # ockham
-An opinionated javascript finite state machine
+A Javascript hierachical finite state machine library
 
 Ockham is a very simple finite state machine controller. It was developed to fullfill a concrete necessity so it is not really a generic solution implementation.
 It has the main following characteristics:
@@ -47,25 +45,25 @@ We define a function called 'config' that returns an object with the state defin
 It always starts with the 'none' state, and by calling the transition functions we can make the State Machine to change its state:
 
 ```javascript
-fsm.currentName(); // => 'none'
+fsm.currentState(); // => 'none'
 fsm.is('none'); // => true
 fsm.can('init'); // => true
 
 fsm.doTransition('init');
-fsm.currentName(); // => 'green'
+fsm.currentState(); // => 'green'
 fsm.is('none'); // => false
 fsm.is('green'); // => true
 fsm.can('init'); // => false
 fsm.can('warn'); // => true
 
 fsm.doTransition('warn');
-fsm.currentName(); // => 'yellow'
+fsm.currentState(); // => 'yellow'
 
 fsm.doTransition('panic');
-fsm.currentName(); // => 'red'
+fsm.currentState(); // => 'red'
 
 fsm.doTransition('calm');
-fsm.currentName(); // => 'yellow'
+fsm.currentState(); // => 'yellow'
 ```
 
 ## Defining transitions
@@ -111,16 +109,16 @@ var fsm = Ockham.create({
   }
 });
 
-fsm.currentName(); // => 'none'
+fsm.currentState(); // => 'none'
 
 fsm.doTransition('init');
-fsm.currentName(); // => 'off'
+fsm.currentState(); // => 'off'
 
 fsm.doTransition('turn_on');
-fsm.currentName(); // => 'on'
+fsm.currentState(); // => 'on'
 
 fsm.doTransition('turn_off');
-fsm.currentName(); // => 'off'
+fsm.currentState(); // => 'off'
 ```
 
 There is not much difference from the simple example, because this promises are not doing anything. But you can implement whatever you need inside the promise.
@@ -143,16 +141,16 @@ For example, we can define the 'turn_on' transition this way:
     });
   },
 
-fsm.currentName(); // => 'none'
+fsm.currentState(); // => 'none'
 
 fsm.doTransition('init');
-fsm.currentName(); // => 'off'
+fsm.currentState(); // => 'off'
 
 fsm.doTransition('turn_on',{switch: false});
-fsm.currentName(); // => 'off'
+fsm.currentState(); // => 'off'
 
 fsm.doTransition('turn_on', {switch: true});
-fsm.currentName(); // => 'on'
+fsm.currentState(); // => 'on'
 ```
 
 ## Deferring transitions
@@ -196,18 +194,18 @@ var fsm = Ockham.create({
   }
 });
 
-fsm.currentName(); // => 'none'
+fsm.currentState(); // => 'none'
 fsm.doTransition('init');
-fsm.currentName(); // => 'off'
+fsm.currentState(); // => 'off'
 
 fsm.doTransition('blink'); // When blink transition finishes it will do a turn_on transition
-fsm.currentName(); // => 'on'
+fsm.currentState(); // => 'on'
 
 fsm.doTransition('turn_off');
-fsm.currentName(); // => 'off'
+fsm.currentState(); // => 'off'
 
 fsm.doTransition('round'); // When round transition finishes it will do a turn_on transition and then a turn_off
-fsm.currentName(); // => 'off'
+fsm.currentState(); // => 'off'
 ```
 
 ## Nested states
@@ -250,33 +248,33 @@ var fsm = Ockham.create({
   }
 });
 
-fsm.currentName(); // => 'none'
-fsm.doTransition('init');
-fsm.currentName(); // => 'off'
+fsm.currentState(); // => 'none'
+fsm.currentState('init');
+fsm.currentState(); // => 'off'
 
 fsm.doTransition('blink');
-fsm.currentName(); // => 'off-blink'
+fsm.currentState(); // => 'off-blink'
 
 fsm.doTransition('cancel');
-fsm.currentName(); // => 'off'
+fsm.currentState(); // => 'off'
 
 fsm.doTransition('blink');
-fsm.currentName(); // => 'off-blink'
+fsm.currentState(); // => 'off-blink'
 fsm.can('start'); // true
 fsm.can('blink'); // true
 fsm.can('cancel'); // true
 
 fsm.doTransition('start'); // This transition is defined on 'off'
-fsm.currentName(); // => 'on'
+fsm.currentState(); // => 'on'
 
 fsm.doTransition('blink');
-fsm.currentName(); // => 'on-blink'
+fsm.currentState(); // => 'on-blink'
 fsm.can('stop'); // true
 fsm.can('blink'); // true
 fsm.can('cancel'); // true
 
 fsm.doTransition('stop'); // This transition is defined on 'on'
-fsm.currentName(); // => 'off'
+fsm.currentState(); // => 'off'
 ```
 
 ## API
@@ -292,7 +290,7 @@ Once we have an Ockham instance we can call its following methods:
 
 * `can(transition)`: Returns true if the current state can do the transition.
 * `cannot(transition)`: Returns true if the current state cannot do the transition.
-* `currentName()`: Returns the complete name (taking care of inheritance) of the current state.
+* `currentState()`: Returns the complete name (taking care of inheritance) of the current state.
 * `deferTransition(transition, options)`: Defer a transition to be fullfiled once the current transition has finished.
 * `doTransition(transition, options)`: Execute transition in the current state.
 * `is(state)`: Return true if the current state is the passed state.
@@ -317,8 +315,7 @@ I will try to remove it whenever I can.
 ## TODO
 
 * Improve documentation
-* Improve stability working with other projects...
-* Support forn Node, AMD, Web worker...
+* Support for Node, AMD, Web worker...
 
 ## License
 
