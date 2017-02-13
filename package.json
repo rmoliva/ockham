@@ -1,6 +1,6 @@
 {
   "name": "ockham",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "public": true,
   "description": "A Javascript hierachical finite state machine library",
   "main": "src/ockham.js",
